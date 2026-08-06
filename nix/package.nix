@@ -86,7 +86,7 @@ let
         echo "no GSettings schemas were collected" >&2
         exit 1
       }
-      ${glib.bin}/bin/glib-compile-schemas --strict "$destination"
+      ${glib.dev}/bin/glib-compile-schemas --strict "$destination"
       test -f "$destination/gschemas.compiled"
       ${glib.bin}/bin/gsettings --schemadir "$destination" list-schemas \
         | grep -qx 'org.gtk.Settings.FileChooser'
