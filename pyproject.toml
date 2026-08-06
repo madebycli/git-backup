@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "github-backup-deck"
-version = "0.3.1"
+dynamic = ["version"]
 description = "GIF Picker-family graphical GitHub backup manager for Wayland"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -19,6 +19,12 @@ github-backup-deck-overview = "github_backup_deck.gui.overview:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
+
+[tool.setuptools.dynamic]
+version = { file = ["src/github_backup_deck/VERSION"] }
+
+[tool.setuptools.package-data]
+github_backup_deck = ["VERSION"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
