@@ -140,7 +140,7 @@
 }
 
 .deck-progress {
-    min-height: 20px;
+    min-height: 22px;
     margin-left: 12px;
     margin-right: 12px;
     font-family: monospace;
@@ -152,11 +152,13 @@
     border: 1px solid alpha(@theme_fg_color, 0.10);
     border-radius: 999px;
     min-height: 18px;
+    padding: 2px;
 }
 
 .deck-progress progress {
     background: alpha(@theme_selected_bg_color, 0.72);
     border-radius: 999px;
+    min-height: 14px;
 }
 
 .log-scroll {
