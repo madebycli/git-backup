@@ -198,7 +198,7 @@ def run_login(parent: Any) -> bool:
     state["active"] = False
     if response != Gtk.ResponseType.OK:
         cancel_event.set()
-    authenticated = response == Gtk.ResponseType.OK
+    authenticated = bool(response == Gtk.ResponseType.OK)
     error_message = state["error"]
     dialog.destroy()
 

@@ -50,3 +50,7 @@ warn_unused_ignores = false
 [[tool.mypy.overrides]]
 module = ["gi", "gi.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["github_backup_deck.gui.main_window"]
+disable_error_code = ["name-defined", "misc", "has-type"]

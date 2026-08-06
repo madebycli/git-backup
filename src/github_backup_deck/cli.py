@@ -113,15 +113,15 @@ def main(argv: list[str] | None = None) -> int:
         _json(StateStore().latest_summary() or {"status": "never-run"})
         return 0
     if command == "probe":
-        result = probe_path(args.path)
-        _json(result.to_dict())
-        return 0 if result.ok else 1
+        probe_result = probe_path(args.path)
+        _json(probe_result.to_dict())
+        return 0 if probe_result.ok else 1
     if command == "verify":
         config = ConfigStore().load()
         destination = args.destination or config.backup_path
-        result = verify_destination(destination)
-        _json(result.to_dict())
-        return 0 if result.ok else 1
+        verification_result = verify_destination(destination)
+        _json(verification_result.to_dict())
+        return 0 if verification_result.ok else 1
     if command == "doctor":
         payload, _required_ok = _doctor()
         _json(payload)

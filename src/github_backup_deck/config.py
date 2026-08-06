@@ -5,7 +5,7 @@ import os
 import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from github_backup_deck.models import BackupFormat, BackupOptions
 
@@ -71,7 +71,7 @@ class AppConfig:
         values = {key: payload.get(key, default) for key, default in defaults.items()}
         if values["backup_format"] not in {"zip", "folder"}:
             values["backup_format"] = "zip"
-        return cls(**cast(dict[str, Any], values))
+        return cls(**values)
 
 
 class ConfigStore:
