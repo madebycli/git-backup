@@ -65,13 +65,6 @@ let
       done
     '';
   };
-  schemaSourceClosure = closureInfo {
-    rootPaths = [
-      glib
-      gtk3
-      gsettings-desktop-schemas
-    ];
-  };
   runtimeSchemas = stdenvNoCC.mkDerivation {
     pname = "github-backup-deck-runtime-schemas";
     version = "1";
@@ -79,13 +72,16 @@ let
     installPhase = ''
       destination="$out/share/glib-2.0/schemas"
       mkdir -p "$destination"
-      while IFS= read -r source; do
-        schema_dir="$source/share/glib-2.0/schemas"
-        [ -d "$schema_dir" ] || continue
-        find -L "$schema_dir" -maxdepth 1 -type f \
-          \( -name '*.gschema.xml' -o -name '*.gschema.override' \) \
-          -exec cp -f {} "$destination/" \;
-      done < ${schemaSourceClosure}/store-paths
+      for source in ${glib} ${gtk3} ${gsettings-desktop-schemas}; do
+        [ -d "$source/share" ] || continue
+        while IFS= read -r schema; do
+          install -m644 "$schema" "$destination/$(basename "$schema")"
+        done < <(
+          find -L "$source/share" -type f \
+            \( -name '*.gschema.xml' -o -name '*.gschema.override' \) \
+            -print
+        )
+      done
       test -n "$(find "$destination" -maxdepth 1 -name '*.gschema.xml' -print -quit)" || {
         echo "no GSettings schemas were collected" >&2
         exit 1
