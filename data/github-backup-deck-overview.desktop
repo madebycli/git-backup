@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=GitHub Backup Overview
+Comment=Show GitHub backup status
+Exec=github-backup-deck overview
+Icon=github-backup-deck
+Terminal=false
+Categories=Utility;Development;
+StartupNotify=false
+NoDisplay=false

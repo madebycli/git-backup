@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=GitHub Backup Deck
+Comment=Back up GitHub repositories and metadata
+Exec=github-backup-deck gui
+Icon=github-backup-deck
+Terminal=false
+Categories=Utility;Development;
+StartupNotify=true
+StartupWMClass=github-backup-deck
+Keywords=GitHub;Backup;Git;Repository;

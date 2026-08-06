@@ -1,0 +1,8 @@
+window { background: #0d1117; color: #f0f6fc; }
+.title { font-size: 24px; font-weight: 700; }
+.subtitle { color: #8b949e; }
+.card { background: #161b22; border-radius: 12px; padding: 16px; }
+.success { color: #3fb950; }
+.warning { color: #d29922; }
+.error { color: #f85149; }
+button.suggested-action { background: #238636; color: white; }

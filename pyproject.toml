@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "github-backup-deck"
+version = "0.1.0"
+description = "Graphical GitHub backup manager for Wayland"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "madebycli" }]
+keywords = ["github", "backup", "gtk", "wayland", "nixos"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: POSIX :: Linux",
+]
+
+[project.scripts]
+github-backup-deck = "github_backup_deck.cli:main"
+github-backup-deck-daemon = "github_backup_deck.daemon:main"
+github-backup-deck-overview = "github_backup_deck.gui.overview:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["github_backup_deck"]
+mypy_path = "src"
+warn_unused_ignores = false
+
+[[tool.mypy.overrides]]
+module = ["gi", "gi.*"]
+ignore_missing_imports = true
