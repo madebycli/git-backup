@@ -19,9 +19,9 @@ class _UnixRequestHandler(socketserver.StreamRequestHandler):
             if not isinstance(payload, dict):
                 raise ValueError("request must be an object")
             response = self.server.dispatch(payload)  # type: ignore[attr-defined]
-        except Exception as exc:  # noqa: BLE001 - protocol boundary
+        except Exception as exc:
             response = {"ok": False, "error": str(exc)}
-        self.wfile.write((json.dumps(response, sort_keys=True) + "\n").encode("utf-8"))
+        self.wfile.write((json.dumps(response) + "\n").encode("utf-8"))
 
 
 class UnixIpcServer(socketserver.ThreadingUnixStreamServer):
@@ -29,7 +29,7 @@ class UnixIpcServer(socketserver.ThreadingUnixStreamServer):
     allow_reuse_address = True
 
     def __init__(self, handler: RequestHandler, socket_path: Path | None = None) -> None:
-        self.socket_path = socket_path or runtime_dir() / "control.sock"
+        self.socket_path = socket_path or runtime_dir() / "control-v3.sock"
         self.socket_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         os.chmod(self.socket_path.parent, 0o700)
         self.socket_path.unlink(missing_ok=True)

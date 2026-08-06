@@ -4,6 +4,7 @@ import json
 import os
 import tempfile
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -69,6 +70,17 @@ class AppConfig:
     def from_dict(cls, payload: dict[str, Any]) -> "AppConfig":
         defaults = asdict(cls())
         values = {key: payload.get(key, default) for key, default in defaults.items()}
+        values["default_backup_directory"] = str(values["default_backup_directory"])
+        for key in (
+            "include_issues",
+            "include_pull_requests",
+            "include_releases",
+            "include_action_artifacts",
+            "include_archived",
+            "fetch_lfs",
+            "versioned_snapshots",
+        ):
+            values[key] = values[key] if isinstance(values[key], bool) else bool(defaults[key])
         if values["backup_format"] not in {"zip", "folder"}:
             values["backup_format"] = "zip"
         return cls(**values)
@@ -83,11 +95,20 @@ class ConfigStore:
             return AppConfig()
         try:
             payload = json.loads(self.path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
-            raise RuntimeError(f"Cannot read configuration: {exc}") from exc
-        if not isinstance(payload, dict):
-            raise RuntimeError("Configuration root must be an object")
-        return AppConfig.from_dict(payload)
+            if not isinstance(payload, dict):
+                raise ValueError("configuration root is not an object")
+            return AppConfig.from_dict(payload)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError):
+            self._quarantine_invalid_config()
+            return AppConfig()
+
+    def _quarantine_invalid_config(self) -> None:
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        quarantine = self.path.with_name(f"{self.path.name}.invalid-{timestamp}")
+        try:
+            os.replace(self.path, quarantine)
+        except OSError:
+            return
 
     def save(self, config: AppConfig) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
