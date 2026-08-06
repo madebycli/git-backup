@@ -3,7 +3,7 @@
   module,
   package,
 }:
-pkgs.nixosTest {
+pkgs.testers.nixosTest {
   name = "github-backup-deck-module";
   nodes.machine = {
     imports = [ module ];
