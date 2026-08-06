@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, BinaryIO
 
 from github_backup_deck.models import BackupFormat, Repository
-from github_backup_deck.process import run_command
+from github_backup_deck.process import CommandCancelled, run_command
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,9 +67,7 @@ def _missing_remote_refs(
     )
     remote_refs = _parse_refs(remote.stdout)
     local_refs = _parse_refs(local.stdout)
-    return sorted(
-        ref for ref, sha in remote_refs.items() if local_refs.get(ref) != sha
-    )
+    return sorted(ref for ref, sha in remote_refs.items() if local_refs.get(ref) != sha)
 
 
 def verify_mirror(
@@ -85,11 +83,7 @@ def verify_mirror(
         timeout=1800,
         cancel_event=cancel_event,
     )
-    missing = _missing_remote_refs(
-        repository,
-        mirror,
-        cancel_event=cancel_event,
-    )
+    missing = _missing_remote_refs(repository, mirror, cancel_event=cancel_event)
     if missing:
         run_command(
             ["git", "-C", str(mirror), "remote", "update", "--prune"],
@@ -102,11 +96,7 @@ def verify_mirror(
                 timeout=7200,
                 cancel_event=cancel_event,
             )
-        missing = _missing_remote_refs(
-            repository,
-            mirror,
-            cancel_event=cancel_event,
-        )
+        missing = _missing_remote_refs(repository, mirror, cancel_event=cancel_event)
     if missing:
         preview = ", ".join(missing[:8])
         suffix = " …" if len(missing) > 8 else ""
@@ -116,7 +106,7 @@ def verify_mirror(
         )
     if fetch_lfs:
         run_command(
-            ["git", "-C", str(mirror), "lfs", "fsck"],
+            ["git", "-C", str(mirror), "lfs", "fsck", "--objects"],
             timeout=1800,
             cancel_event=cancel_event,
         )
@@ -156,8 +146,6 @@ def _verify_hash(
     digest = hashlib.sha256()
     while True:
         if cancel_event is not None and cancel_event.is_set():
-            from github_backup_deck.process import CommandCancelled
-
             raise CommandCancelled("Backup cancelled during final verification")
         chunk = chunks.read(1024 * 1024)
         if not chunk:
@@ -165,6 +153,27 @@ def _verify_hash(
         digest.update(chunk)
     if digest.hexdigest() != expected:
         raise RuntimeError("Export checksum mismatch")
+
+
+def _manifest_files(payload: object, description: str) -> dict[str, dict[str, Any]]:
+    files = payload.get("files") if isinstance(payload, dict) else None
+    if not isinstance(files, dict):
+        raise RuntimeError(f"{description} has no valid checksum manifest")
+    normalized: dict[str, dict[str, Any]] = {}
+    for raw_name, raw_details in files.items():
+        name = str(raw_name)
+        if not name or name.startswith("/") or ".." in Path(name).parts:
+            raise RuntimeError(f"{description} contains an unsafe manifest path: {name}")
+        if not isinstance(raw_details, dict):
+            raise RuntimeError(f"{description} has invalid manifest details: {name}")
+        expected_hash = raw_details.get("sha256")
+        expected_size = raw_details.get("size")
+        if not isinstance(expected_hash, str) or len(expected_hash) != 64:
+            raise RuntimeError(f"{description} has an invalid checksum: {name}")
+        if not isinstance(expected_size, int) or expected_size < 0:
+            raise RuntimeError(f"{description} has an invalid size: {name}")
+        normalized[name] = raw_details
+    return normalized
 
 
 def verify_export(
@@ -179,23 +188,31 @@ def verify_export(
         try:
             with zipfile.ZipFile(path) as archive:
                 manifest_payload = json.loads(archive.read("backup-manifest.json"))
-                files = (
-                    manifest_payload.get("files")
-                    if isinstance(manifest_payload, dict)
-                    else None
-                )
-                if not isinstance(files, dict):
-                    raise RuntimeError("ZIP snapshot has no valid checksum manifest")
-                names = set(archive.namelist())
+                files = _manifest_files(manifest_payload, "ZIP snapshot")
+                file_infos = {
+                    info.filename: info
+                    for info in archive.infolist()
+                    if not info.is_dir() and info.filename != "backup-manifest.json"
+                }
+                expected_names = set(files)
+                actual_names = set(file_infos)
+                if actual_names != expected_names:
+                    missing = sorted(expected_names - actual_names)
+                    extra = sorted(actual_names - expected_names)
+                    raise RuntimeError(
+                        "ZIP content does not exactly match its manifest; "
+                        f"missing={missing[:5]}, extra={extra[:5]}"
+                    )
                 for name, details in files.items():
-                    if name not in names or not isinstance(details, dict):
-                        raise RuntimeError(f"ZIP snapshot misses manifest entry: {name}")
-                    expected = str(details.get("sha256", ""))
-                    with archive.open(name) as handle:
-                        _verify_hash(expected, handle, cancel_event)
+                    info = file_infos[name]
+                    if info.file_size != details["size"]:
+                        raise RuntimeError(f"ZIP size mismatch: {name}")
+                    with archive.open(info) as handle:
+                        _verify_hash(str(details["sha256"]), handle, cancel_event)
         except (OSError, KeyError, json.JSONDecodeError, zipfile.BadZipFile) as exc:
             raise RuntimeError(f"Invalid ZIP snapshot {path}: {exc}") from exc
         return
+
     if not path.is_dir():
         raise RuntimeError(f"Missing folder snapshot: {path}")
     manifest_path = path / "backup-manifest.json"
@@ -203,15 +220,29 @@ def verify_export(
         manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise RuntimeError(f"Invalid folder checksum manifest: {exc}") from exc
-    files = manifest_payload.get("files") if isinstance(manifest_payload, dict) else None
-    if not isinstance(files, dict):
-        raise RuntimeError("Folder snapshot has no valid checksum manifest")
+    files = _manifest_files(manifest_payload, "Folder snapshot")
+    actual_files = {
+        item.relative_to(path).as_posix()
+        for item in path.rglob("*")
+        if item.is_file() and not item.is_symlink() and item != manifest_path
+    }
+    expected_files = set(files)
+    if actual_files != expected_files:
+        missing = sorted(expected_files - actual_files)
+        extra = sorted(actual_files - expected_files)
+        raise RuntimeError(
+            "Folder content does not exactly match its manifest; "
+            f"missing={missing[:5]}, extra={extra[:5]}"
+        )
+    root = path.resolve()
     for name, details in files.items():
-        target = path / str(name)
-        if not target.is_file() or not isinstance(details, dict):
-            raise RuntimeError(f"Folder snapshot misses manifest entry: {name}")
+        target = (path / name).resolve()
+        if not target.is_relative_to(root) or target.is_symlink() or not target.is_file():
+            raise RuntimeError(f"Folder snapshot has an unsafe or missing entry: {name}")
+        if target.stat().st_size != details["size"]:
+            raise RuntimeError(f"Folder size mismatch: {name}")
         with target.open("rb") as handle:
-            _verify_hash(str(details.get("sha256", "")), handle, cancel_event)
+            _verify_hash(str(details["sha256"]), handle, cancel_event)
 
 
 def verify_destination(destination: Path) -> VerificationResult:
