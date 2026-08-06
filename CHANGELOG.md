@@ -2,6 +2,21 @@
 
 All notable application changes are documented here.
 
+## 0.3.5 — 2026-08-07
+
+### Changed
+
+- Restored GTK3 accent colors after 0.3.4 made the interface completely monochrome.
+- Kept the GIF Picker's dark neutral surfaces, cards and ordinary controls.
+- GTK accent color is now limited to the primary backup action, progress fill, focus indication, spinner and subtle checked-control outlines.
+- Checked repository-content options use a low-opacity accent instead of large solid accent-colored pills.
+- Added regression checks that require GTK accent support while preventing it from tinting the entire interface.
+
+### Release scope
+
+- Application UI and tests only.
+- No Nix, NixOS, flake, lock-file, catalog, module, authentication or backup-engine changes are included.
+
 ## 0.3.4 — 2026-08-06
 
 ### Changed
