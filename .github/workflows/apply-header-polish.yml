@@ -1,0 +1,105 @@
+name: Apply compact header polish
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/apply-header-polish.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply deterministic header layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/github_backup_deck/gui/main_window.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''        def _header(self) -> Any:
+              box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+              box.set_size_request(-1, 64)
+              self._margins(box, 14)
+              box.pack_start(
+                  self._button("✕", "x-btn", lambda *_: self._close(), width=36),
+                  False,
+                  False,
+                  0,
+              )
+              box.pack_start(
+                  self._label("GitHub Backup Deck", "picker-title", width_chars=36),
+                  True,
+                  True,
+                  0,
+              )
+              self.head = self._label("READY", "status-chip", 0.5, width_chars=20)
+              self.head.set_size_request(190, 36)
+              box.pack_end(self.head, False, False, 0)
+              return box
+          '''
+          new = '''        def _header(self) -> Any:
+              header = Gtk.Grid()
+              header.set_column_spacing(10)
+              header.set_hexpand(True)
+              header.set_size_request(-1, 32)
+              header.set_margin_top(6)
+              header.set_margin_bottom(6)
+              header.set_margin_start(12)
+              header.set_margin_end(12)
+
+              close = self._button("✕", "x-btn", lambda *_: self._close(), width=32)
+              close.set_size_request(32, 32)
+              header.attach(close, 0, 0, 1, 1)
+
+              title = self._label("GitHub Backup Deck", "picker-title")
+              title.set_halign(Gtk.Align.START)
+              header.attach(title, 1, 0, 1, 1)
+
+              spacer = Gtk.Box()
+              spacer.set_hexpand(True)
+              header.attach(spacer, 2, 0, 1, 1)
+
+              self.head = self._label("READY", "status-chip", 0.5)
+              self.head.set_size_request(96, 30)
+              self.head.set_halign(Gtk.Align.END)
+              header.attach(self.head, 3, 0, 1, 1)
+              return header
+          '''
+          if old not in text:
+              raise SystemExit("expected header block not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          for filename in ("pyproject.toml", "nix/package.nix"):
+              version_path = Path(filename)
+              version_text = version_path.read_text(encoding="utf-8")
+              if "0.3.0" not in version_text:
+                  raise SystemExit(f"expected version not found in {filename}")
+              version_path.write_text(
+                  version_text.replace("0.3.0", "0.3.1", 1),
+                  encoding="utf-8",
+              )
+          PY
+          rm .github/workflows/apply-header-polish.yml
+          python3 -m compileall -q src
+          git diff --check
+      - name: Publish polished UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'fix(ui): compact header and neutralize controls for 0.3.1'
+          git push origin HEAD:main
