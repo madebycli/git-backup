@@ -11,7 +11,7 @@ permissions:
 jobs:
   diagnostics:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
@@ -36,9 +36,18 @@ jobs:
             } > audit-diagnostics.txt 2>&1
           '
           test -f audit-diagnostics.txt
+      - name: Capture complete Nix check log
+        shell: bash
+        run: |
+          set +e
+          nix flake check --print-build-logs > nix-check.txt 2>&1
+          printf '\nnix_exit=%s\n' "$?" >> nix-check.txt
+          test -f nix-check.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: audit-diagnostics
-          path: audit-diagnostics.txt
+          path: |
+            audit-diagnostics.txt
+            nix-check.txt
           if-no-files-found: error
           retention-days: 1
