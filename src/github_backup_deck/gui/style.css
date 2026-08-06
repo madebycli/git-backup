@@ -1,54 +1,54 @@
 .picker-root {
-    background: alpha(@theme_bg_color, 0.98);
-    border: 1px solid alpha(@theme_fg_color, 0.14);
+    background: alpha(@theme_bg_color, 0.97);
+    border: 1px solid alpha(@theme_fg_color, 0.12);
     border-radius: 12px;
     color: @theme_fg_color;
 }
 
 .picker-title {
-    color: @theme_fg_color;
+    color: alpha(@theme_fg_color, 0.92);
     font-size: 20px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .picker-hint {
-    color: alpha(@theme_fg_color, 0.38);
+    color: alpha(@theme_fg_color, 0.30);
     font-size: 11px;
     font-family: monospace;
 }
 
 .section-label {
-    color: alpha(@theme_fg_color, 0.52);
+    color: alpha(@theme_fg_color, 0.48);
     font-size: 11px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .card-title {
-    color: alpha(@theme_fg_color, 0.94);
+    color: alpha(@theme_fg_color, 0.90);
     font-size: 15px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .card-detail {
-    color: alpha(@theme_fg_color, 0.66);
+    color: alpha(@theme_fg_color, 0.62);
     font-size: 12px;
     font-family: monospace;
 }
 
 .deck-card {
-    background: alpha(@theme_fg_color, 0.045);
-    border: 1px solid alpha(@theme_fg_color, 0.10);
+    background: alpha(@theme_fg_color, 0.03);
+    border: 1px solid alpha(@theme_fg_color, 0.08);
     border-radius: 10px;
     padding: 14px;
 }
 
 .x-btn {
-    background: alpha(@theme_fg_color, 0.06);
-    color: @theme_fg_color;
-    border: 1px solid alpha(@theme_fg_color, 0.13);
+    background: alpha(@theme_fg_color, 0.05);
+    color: alpha(@theme_fg_color, 0.90);
+    border: 1px solid alpha(@theme_fg_color, 0.10);
     border-radius: 999px;
     min-width: 30px;
     min-height: 30px;
@@ -57,8 +57,8 @@
 }
 
 .x-btn:hover {
-    background: alpha(@theme_selected_bg_color, 0.22);
-    border-color: alpha(@theme_selected_bg_color, 0.70);
+    background: alpha(@theme_fg_color, 0.10);
+    border-color: alpha(@theme_fg_color, 0.24);
 }
 
 .chip,
@@ -72,60 +72,71 @@
 }
 
 .chip {
-    background: alpha(@theme_fg_color, 0.05);
-    color: alpha(@theme_fg_color, 0.72);
-    border: 1px solid alpha(@theme_fg_color, 0.12);
+    background: alpha(@theme_fg_color, 0.04);
+    color: alpha(@theme_fg_color, 0.65);
+    border: 1px solid alpha(@theme_fg_color, 0.10);
     padding: 3px 13px;
 }
 
-.chip:hover,
+.chip:hover {
+    background: alpha(@theme_fg_color, 0.08);
+    color: alpha(@theme_fg_color, 0.84);
+    border-color: alpha(@theme_fg_color, 0.20);
+}
+
 .chip:checked {
-    background: alpha(@theme_selected_bg_color, 0.28);
-    color: @theme_fg_color;
-    border-color: alpha(@theme_selected_bg_color, 0.78);
+    background: alpha(@theme_fg_color, 0.14);
+    color: alpha(@theme_fg_color, 0.95);
+    border-color: alpha(@theme_fg_color, 0.30);
 }
 
 .action-btn {
-    background: alpha(@theme_selected_bg_color, 0.20);
-    color: @theme_fg_color;
-    border: 1px solid alpha(@theme_selected_bg_color, 0.65);
+    background: alpha(@theme_fg_color, 0.05);
+    color: alpha(@theme_fg_color, 0.82);
+    border: 1px solid alpha(@theme_fg_color, 0.13);
     padding: 4px 15px;
 }
 
 .action-btn:hover {
-    background: alpha(@theme_selected_bg_color, 0.34);
-    border-color: @theme_selected_bg_color;
+    background: alpha(@theme_fg_color, 0.10);
+    color: alpha(@theme_fg_color, 0.94);
+    border-color: alpha(@theme_fg_color, 0.26);
 }
 
 .primary-btn {
-    background: @theme_selected_bg_color;
+    background: alpha(@theme_selected_bg_color, 0.72);
     color: @theme_selected_fg_color;
-    border: 1px solid @theme_selected_bg_color;
+    border: 1px solid alpha(@theme_selected_bg_color, 0.82);
     padding: 6px 18px;
     font-weight: 700;
 }
 
 .primary-btn:hover {
-    background: shade(@theme_selected_bg_color, 1.12);
+    background: alpha(@theme_selected_bg_color, 0.88);
+    border-color: @theme_selected_bg_color;
 }
 
 .danger-btn {
-    background: alpha(@theme_fg_color, 0.05);
-    color: @theme_selected_bg_color;
-    border: 1px solid alpha(@theme_selected_bg_color, 0.62);
+    background: alpha(@theme_fg_color, 0.035);
+    color: alpha(@theme_fg_color, 0.64);
+    border: 1px solid alpha(@theme_fg_color, 0.12);
     padding: 6px 18px;
     font-weight: 700;
 }
 
 .danger-btn:hover {
-    background: alpha(@theme_selected_bg_color, 0.20);
+    background: alpha(@theme_fg_color, 0.09);
+    color: alpha(@theme_fg_color, 0.90);
+    border-color: alpha(@theme_fg_color, 0.24);
 }
 
 .status-chip {
-    background: alpha(@theme_selected_bg_color, 0.12);
-    color: @theme_selected_bg_color;
-    border: 1px solid alpha(@theme_selected_bg_color, 0.46);
-    padding: 4px 12px;
+    background: alpha(@theme_fg_color, 0.035);
+    color: alpha(@theme_fg_color, 0.58);
+    border: 1px solid alpha(@theme_fg_color, 0.12);
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 500;
 }
 
 .deck-progress {
@@ -135,20 +146,20 @@
 }
 
 .deck-progress trough {
-    background: alpha(@theme_fg_color, 0.06);
-    border: 1px solid alpha(@theme_fg_color, 0.12);
+    background: alpha(@theme_fg_color, 0.05);
+    border: 1px solid alpha(@theme_fg_color, 0.10);
     border-radius: 999px;
     min-height: 18px;
 }
 
 .deck-progress progress {
-    background: @theme_selected_bg_color;
+    background: alpha(@theme_selected_bg_color, 0.72);
     border-radius: 999px;
 }
 
 .log-scroll {
     background: alpha(@theme_bg_color, 0.88);
-    border: 1px solid alpha(@theme_fg_color, 0.10);
+    border: 1px solid alpha(@theme_fg_color, 0.08);
     border-radius: 10px;
     min-height: 260px;
 }
@@ -156,13 +167,13 @@
 .log-view,
 .log-view text {
     background: alpha(@theme_bg_color, 0.92);
-    color: alpha(@theme_fg_color, 0.78);
+    color: alpha(@theme_fg_color, 0.74);
     font-family: monospace;
     font-size: 11px;
 }
 
 separator {
-    background: alpha(@theme_fg_color, 0.10);
+    background: alpha(@theme_fg_color, 0.08);
     min-height: 1px;
 }
 
