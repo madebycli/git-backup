@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import threading
+
 from github_backup_deck.github.client import GitHubClient
 from github_backup_deck.models import Repository
 
@@ -8,11 +10,17 @@ class RepositoryService:
     def __init__(self, client: GitHubClient | None = None) -> None:
         self.client = client or GitHubClient()
 
-    def list_accessible(self, *, include_archived: bool = True) -> list[Repository]:
+    def list_accessible(
+        self,
+        *,
+        include_archived: bool = True,
+        cancel_event: threading.Event | None = None,
+    ) -> list[Repository]:
         items = self.client.paginated_items(
             "/user/repos?per_page=100&sort=full_name&direction=asc"
             "&affiliation=owner,collaborator,organization_member",
             timeout=600,
+            cancel_event=cancel_event,
         )
         repositories = [Repository.from_api(item) for item in items]
         if not include_archived:

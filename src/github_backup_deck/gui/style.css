@@ -1,54 +1,54 @@
 .picker-root {
-    background: rgba(14, 14, 14, 0.97);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: alpha(@theme_bg_color, 0.98);
+    border: 1px solid alpha(@theme_fg_color, 0.14);
     border-radius: 12px;
-    color: rgba(255, 255, 255, 0.88);
+    color: @theme_fg_color;
 }
 
 .picker-title {
-    color: rgba(255, 255, 255, 0.96);
+    color: @theme_fg_color;
     font-size: 20px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .picker-hint {
-    color: rgba(255, 255, 255, 0.34);
+    color: alpha(@theme_fg_color, 0.38);
     font-size: 11px;
     font-family: monospace;
 }
 
 .section-label {
-    color: rgba(255, 255, 255, 0.46);
+    color: alpha(@theme_fg_color, 0.52);
     font-size: 11px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .card-title {
-    color: rgba(255, 255, 255, 0.92);
+    color: alpha(@theme_fg_color, 0.94);
     font-size: 15px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .card-detail {
-    color: rgba(255, 255, 255, 0.58);
+    color: alpha(@theme_fg_color, 0.66);
     font-size: 12px;
     font-family: monospace;
 }
 
 .deck-card {
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: alpha(@theme_fg_color, 0.045);
+    border: 1px solid alpha(@theme_fg_color, 0.10);
     border-radius: 10px;
     padding: 14px;
 }
 
 .x-btn {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: alpha(@theme_fg_color, 0.06);
+    color: @theme_fg_color;
+    border: 1px solid alpha(@theme_fg_color, 0.13);
     border-radius: 999px;
     min-width: 30px;
     min-height: 30px;
@@ -57,13 +57,14 @@
 }
 
 .x-btn:hover {
-    background: rgba(255, 255, 255, 0.10);
-    border-color: rgba(255, 255, 255, 0.24);
+    background: alpha(@theme_selected_bg_color, 0.22);
+    border-color: alpha(@theme_selected_bg_color, 0.70);
 }
 
 .chip,
 .action-btn,
 .primary-btn,
+.danger-btn,
 .status-chip {
     border-radius: 999px;
     font-family: monospace;
@@ -71,47 +72,59 @@
 }
 
 .chip {
-    background: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.66);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: alpha(@theme_fg_color, 0.05);
+    color: alpha(@theme_fg_color, 0.72);
+    border: 1px solid alpha(@theme_fg_color, 0.12);
     padding: 3px 13px;
 }
 
 .chip:hover,
 .chip:checked {
-    background: rgba(255, 255, 255, 0.14);
-    color: rgba(255, 255, 255, 0.96);
-    border-color: rgba(255, 255, 255, 0.30);
+    background: alpha(@theme_selected_bg_color, 0.28);
+    color: @theme_fg_color;
+    border-color: alpha(@theme_selected_bg_color, 0.78);
 }
 
 .action-btn {
-    background: rgba(255, 255, 255, 0.10);
-    color: rgba(255, 255, 255, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.20);
+    background: alpha(@theme_selected_bg_color, 0.20);
+    color: @theme_fg_color;
+    border: 1px solid alpha(@theme_selected_bg_color, 0.65);
     padding: 4px 15px;
 }
 
 .action-btn:hover {
-    background: rgba(255, 255, 255, 0.17);
-    border-color: rgba(255, 255, 255, 0.36);
+    background: alpha(@theme_selected_bg_color, 0.34);
+    border-color: @theme_selected_bg_color;
 }
 
 .primary-btn {
-    background: rgba(255, 255, 255, 0.90);
-    color: rgba(14, 14, 14, 0.96);
-    border: 1px solid rgba(255, 255, 255, 0.96);
+    background: @theme_selected_bg_color;
+    color: @theme_selected_fg_color;
+    border: 1px solid @theme_selected_bg_color;
     padding: 6px 18px;
     font-weight: 700;
 }
 
 .primary-btn:hover {
-    background: white;
+    background: shade(@theme_selected_bg_color, 1.12);
+}
+
+.danger-btn {
+    background: alpha(@theme_fg_color, 0.05);
+    color: @theme_selected_bg_color;
+    border: 1px solid alpha(@theme_selected_bg_color, 0.62);
+    padding: 6px 18px;
+    font-weight: 700;
+}
+
+.danger-btn:hover {
+    background: alpha(@theme_selected_bg_color, 0.20);
 }
 
 .status-chip {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.62);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: alpha(@theme_selected_bg_color, 0.12);
+    color: @theme_selected_bg_color;
+    border: 1px solid alpha(@theme_selected_bg_color, 0.46);
     padding: 4px 12px;
 }
 
@@ -122,34 +135,34 @@
 }
 
 .deck-progress trough {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: alpha(@theme_fg_color, 0.06);
+    border: 1px solid alpha(@theme_fg_color, 0.12);
     border-radius: 999px;
     min-height: 18px;
 }
 
 .deck-progress progress {
-    background: rgba(255, 255, 255, 0.86);
+    background: @theme_selected_bg_color;
     border-radius: 999px;
 }
 
 .log-scroll {
-    background: rgba(0, 0, 0, 0.28);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: alpha(@theme_bg_color, 0.88);
+    border: 1px solid alpha(@theme_fg_color, 0.10);
     border-radius: 10px;
-    min-height: 220px;
+    min-height: 260px;
 }
 
 .log-view,
 .log-view text {
-    background: rgba(0, 0, 0, 0.12);
-    color: rgba(255, 255, 255, 0.70);
+    background: alpha(@theme_bg_color, 0.92);
+    color: alpha(@theme_fg_color, 0.78);
     font-family: monospace;
     font-size: 11px;
 }
 
 separator {
-    background: rgba(255, 255, 255, 0.08);
+    background: alpha(@theme_fg_color, 0.10);
     min-height: 1px;
 }
 

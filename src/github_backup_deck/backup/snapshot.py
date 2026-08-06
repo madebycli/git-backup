@@ -192,8 +192,10 @@ class SnapshotWriter:
             if path.is_dir():
                 archive.writestr(f"{archive_name}/", b"")
             elif path.is_file():
-                with path.open("rb") as source_handle:
-                    with archive.open(archive_name, "w", force_zip64=True) as target_handle:
-                        while chunk := source_handle.read(1024 * 1024):
-                            cls._check_cancel(cancel_event)
-                            target_handle.write(chunk)
+                with (
+                    path.open("rb") as source_handle,
+                    archive.open(archive_name, "w", force_zip64=True) as target_handle,
+                ):
+                    while chunk := source_handle.read(1024 * 1024):
+                        cls._check_cancel(cancel_event)
+                        target_handle.write(chunk)

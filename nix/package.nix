@@ -21,6 +21,8 @@
   sqlite,
   wl-clipboard,
   xdg-utils,
+  libnotify,
+  dconf,
 }:
 
 let
@@ -63,6 +65,34 @@ let
       done
     '';
   };
+  schemaSourceClosure = closureInfo {
+    rootPaths = [
+      glib
+      gtk3
+      gsettings-desktop-schemas
+    ];
+  };
+  runtimeSchemas = stdenvNoCC.mkDerivation {
+    pname = "github-backup-deck-runtime-schemas";
+    version = "1";
+    dontUnpack = true;
+    nativeBuildInputs = [ glib ];
+    installPhase = ''
+      destination="$out/share/glib-2.0/schemas"
+      mkdir -p "$destination"
+      while IFS= read -r source; do
+        schema_dir="$source/share/glib-2.0/schemas"
+        [ -d "$schema_dir" ] || continue
+        find -L "$schema_dir" -maxdepth 1 -type f \
+          \( -name '*.gschema.xml' -o -name '*.gschema.override' \) \
+          -exec cp -f {} "$destination/" \;
+      done < ${schemaSourceClosure}/store-paths
+      glib-compile-schemas "$destination"
+      test -f "$destination/gschemas.compiled"
+      gsettings --schemadir "$destination" list-schemas \
+        | grep -qx 'org.gtk.Settings.FileChooser'
+    '';
+  };
   typelibPath = lib.makeSearchPath "lib/girepository-1.0" [
     runtimeTypelibs
     glib
@@ -71,6 +101,7 @@ let
     gdk-pixbuf
   ];
   dataPath = lib.makeSearchPath "share" [
+    runtimeSchemas
     glib
     gtk3
     gsettings-desktop-schemas
@@ -85,13 +116,15 @@ let
     sqlite
     wl-clipboard
     xdg-utils
+    libnotify
+    dconf
   ];
   pixbufLoaders = "${gdk-pixbuf}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache";
   fontconfigFile = "${fontconfig.out}/etc/fonts/fonts.conf";
 in
 stdenvNoCC.mkDerivation {
   pname = "github-backup-deck";
-  version = "0.2.0";
+  version = "0.3.0";
   src = lib.cleanSource ../.;
   strictDeps = true;
   dontBuild = true;
@@ -123,6 +156,7 @@ def prepend(name: str, value: str) -> None:
 prepend("GI_TYPELIB_PATH", "${typelibPath}")
 prepend("XDG_DATA_DIRS", "${dataPath}")
 prepend("PATH", "${runtimePath}")
+os.environ.setdefault("GSETTINGS_SCHEMA_DIR", "${runtimeSchemas}/share/glib-2.0/schemas")
 os.environ.setdefault("GDK_PIXBUF_MODULE_FILE", "${pixbufLoaders}")
 os.environ.setdefault("FONTCONFIG_FILE", "${fontconfigFile}")
 os.environ.setdefault("GH_BROWSER", "${xdg-utils}/bin/xdg-open")
@@ -159,12 +193,15 @@ PY
     "$out/bin/github-backup-deck" --help >/dev/null
     "$out/bin/github-backup-deck" doctor > doctor.json
     grep -q '"ok": true' doctor.json
-    "$out/bin/github-backup-deck" status | grep -q 'never-run'
+    grep -q '"gtk_file_chooser_schema": true' doctor.json
+    "$out/bin/github-backup-deck" status | grep -q '"state": "offline"'
     "$out/bin/github-backup-deck" probe "$TMPDIR/backup" | grep -q '"ok": true'
     test -x "$out/bin/github-backup-deck-daemon"
     test -x "$out/bin/github-backup-deck-overview"
     test -x "${xdg-utils}/bin/xdg-open"
     test -x "${wl-clipboard}/bin/wl-copy"
+    test -x "${libnotify}/bin/notify-send"
+    test -f "${runtimeSchemas}/share/glib-2.0/schemas/gschemas.compiled"
     test -f "$out/share/applications/github-backup-deck.desktop"
     test -f "$out/share/applications/github-backup-deck-overview.desktop"
     test -f "$out/share/icons/hicolor/scalable/apps/github-backup-deck.svg"
@@ -178,7 +215,7 @@ PY
   '';
 
   meta = {
-    description = "GIF Picker-style graphical GitHub backup manager for Wayland";
+    description = "GIF Picker-family layer-shell GitHub backup manager for Wayland";
     homepage = "https://github.com/madebycli/git-backup";
     license = lib.licenses.mit;
     mainProgram = "github-backup-deck";
