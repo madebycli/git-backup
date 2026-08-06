@@ -68,8 +68,12 @@ class SnapshotWriter:
             (mirror_path, Path("repository.git")),
             (metadata_path, Path("metadata")),
         ):
-            for path in sorted(item for item in source.rglob("*") if item.is_file()):
+            for path in sorted(source.rglob("*")):
                 cls._check_cancel(cancel_event)
+                if path.is_symlink():
+                    raise RuntimeError(f"Refusing unsafe symlink in backup source: {path}")
+                if not path.is_file():
+                    continue
                 relative = (prefix / path.relative_to(source)).as_posix()
                 digest = hashlib.sha256()
                 with path.open("rb") as handle:
@@ -152,12 +156,11 @@ class SnapshotWriter:
         destination.mkdir(parents=True)
         for path in sorted(source.rglob("*")):
             cls._check_cancel(cancel_event)
+            if path.is_symlink():
+                raise RuntimeError(f"Refusing unsafe symlink in backup source: {path}")
             target = destination / path.relative_to(source)
             if path.is_dir():
                 target.mkdir(parents=True, exist_ok=True)
-            elif path.is_symlink():
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.symlink_to(os.readlink(path))
             elif path.is_file():
                 target.parent.mkdir(parents=True, exist_ok=True)
                 cls._copy_file(path, target, cancel_event)
@@ -187,6 +190,8 @@ class SnapshotWriter:
     ) -> None:
         for path in sorted(source.rglob("*")):
             cls._check_cancel(cancel_event)
+            if path.is_symlink():
+                raise RuntimeError(f"Refusing unsafe symlink in backup source: {path}")
             relative = path.relative_to(source)
             archive_name = (prefix / relative).as_posix()
             if path.is_dir():
