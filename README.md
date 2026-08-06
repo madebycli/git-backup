@@ -1,45 +1,98 @@
 # GitHub Backup Deck
 
-GitHub Backup Deck is a Python 3.12, GTK3 and Wayland application that backs up
-all repositories visible to the currently authenticated GitHub CLI account.
-It creates Git mirrors, downloads Git LFS objects, stores repository metadata
-as JSON/JSONL and records run state in SQLite.
+GitHub Backup Deck is a Wayland layer-shell backup manager in the same visual
+family as `madebycli/GIF-Player` and its GIF Picker. It discovers every
+repository accessible to the active GitHub CLI account, mirrors every Git ref,
+exports GitHub metadata and creates versioned per-repository snapshots.
 
-The application never asks for a personal access token. Login is performed by:
+Authentication is delegated to GitHub CLI. The application never asks for or
+stores a personal access token.
+
+## Install from the pinned catalog
+
+```bash
+nix profile add github:madebycli/nix-pkgs#github-backup-deck
+```
+
+Update the installed profile entry after a new catalog pin is published:
+
+```bash
+nix profile upgrade github-backup-deck --refresh
+```
+
+Run the main layer-shell interface:
+
+```bash
+github-backup-deck
+```
+
+## GIF Picker family interface
+
+The main window deliberately reuses the GIF Picker window model:
+
+- undecorated `GtkLayerShell` overlay surface
+- exclusive keyboard focus and Escape-to-close behavior
+- monitor-adaptive picker form factor
+- dark rounded picker surface, monochrome pill controls and monospace typography
+- keyboard shortcuts: `Ctrl+L` login, `Ctrl+R` rescan, `Ctrl+B` backup
+- full-width progress bar and detailed live log
+
+The window automatically shows the active GitHub account, the number of
+accessible repositories, private/public/archive counts, destination health and
+available storage.
+
+## Login
+
+The preferred login flow stays inside the UI. It runs `gh auth login` in a
+background PTY, displays and copies the one-time device code, and opens the
+system browser. A fallback button opens the same login in the first available
+terminal among Ghostty, kitty, foot, Alacritty, Konsole, GNOME Terminal and
+xterm.
+
+The underlying command remains:
 
 ```bash
 gh auth login --hostname github.com --web --git-protocol https
 ```
 
-## Features
+## Backup model
 
-- Browser-based GitHub CLI login
-- Folder chooser for home directories, USB media and external disks
-- Writable/free-space probe before backup
-- Mirror clone or remote update for every accessible repository
-- Optional issues, pull requests and release metadata
-- Git LFS object fetch
-- Atomic metadata/config writes
-- SQLite run history and machine-readable status
-- GTK3 dashboard and GtkLayerShell status overview
-- Unix-socket IPC for a reusable background process
-- Reproducible Nix package, flake checks and NixOS module
+No repository is added manually. The application requests all repositories for
+which the active account is owner, collaborator or organization member,
+including private repositories when authorized.
 
-## Run with Nix
+For each repository it:
 
-```bash
-nix develop
-nix flake check --print-build-logs
-nix build .#github-backup-deck --print-build-logs
-nix run .#github-backup-deck
-nix run .#github-backup-deck -- doctor
+1. maintains an incremental bare mirror under `repositories/`;
+2. forces the mirror refspec to `+refs/*:refs/*`, preserving branches, tags,
+   notes and advertised pull refs;
+3. fetches every Git LFS object when enabled;
+4. validates the mirror with `git fsck --full`;
+5. exports repository, issue, pull-request and release metadata;
+6. creates an immutable versioned snapshot.
+
+ZIP is the default snapshot format. Every repository gets its own ZIP containing
+its complete bare mirror and metadata. Folder snapshots are available from the
+UI.
+
+```text
+DESTINATION/
+├── repositories/                 # incremental working mirrors
+│   └── OWNER/REPOSITORY.git/
+├── metadata/                     # latest exported metadata
+│   └── OWNER/REPOSITORY/
+├── snapshots/
+│   └── YYYYMMDD-HHMMSS-RUNID/
+│       ├── manifest.json
+│       └── repositories/
+│           └── OWNER/
+│               └── REPOSITORY.zip
+└── manifests/
+    └── RUNID.json
 ```
 
-Install into a profile:
-
-```bash
-nix profile add github:madebycli/git-backup
-```
+Existing mirrors are updated and a new snapshot is created on every run, so old
+backup versions remain unchanged.
 
 ## CLI
 
@@ -54,58 +107,16 @@ github-backup-deck verify
 github-backup-deck doctor
 ```
 
-The default backup directory is `~/GitHub Backup`. It can be changed in the GUI
-or with `github-backup-deck backup --destination PATH`.
-
-## Backup layout
-
-```text
-DESTINATION/
-├── repositories/
-│   └── OWNER/
-│       └── REPOSITORY.git/
-├── metadata/
-│   └── OWNER/
-│       └── REPOSITORY/
-│           ├── repository.json
-│           ├── issues.jsonl
-│           ├── pulls.jsonl
-│           └── releases.jsonl
-└── manifests/
-    └── RUN-ID.json
-```
-
-## NixOS module
-
-```nix
-{
-  inputs.github-backup-deck.url = "github:madebycli/git-backup";
-
-  outputs = { nixpkgs, github-backup-deck, ... }: {
-    nixosConfigurations.nyx = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        github-backup-deck.nixosModules.default
-        {
-          programs.github-backup-deck.enable = true;
-        }
-      ];
-    };
-  };
-}
-```
-
-The module installs a user application only. It creates no root service, no
-home directory and no credentials.
-
 ## Development
 
 ```bash
+nix develop
 python -m compileall -q src
 pytest -q
 ruff check .
 mypy src
+nix flake check --print-build-logs
+nix build .#github-backup-deck --print-build-logs
 ```
 
-GTK imports are lazy so the CLI tests run without an active graphical session.
-See `docs/ARCHITECTURE.md`, `docs/MANGO.md` and `docs/SECURITY.md` for details.
+See `docs/UI.md`, `docs/ARCHITECTURE.md` and `docs/SECURITY.md`.

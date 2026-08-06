@@ -15,15 +15,30 @@ class GitMirror:
                 ["git", "-C", str(mirror), "remote", "set-url", "origin", repository.clone_url],
                 timeout=60,
             )
-            run_command(
-                ["git", "-C", str(mirror), "remote", "update", "--prune"],
-                timeout=1800,
-            )
         else:
             run_command(
                 ["git", "clone", "--mirror", repository.clone_url, str(mirror)],
                 timeout=1800,
             )
+
+        # A mirror must preserve every advertised ref, not only the default
+        # branch. This includes all branches, tags, notes and GitHub pull refs.
+        run_command(
+            [
+                "git",
+                "-C",
+                str(mirror),
+                "config",
+                "--replace-all",
+                "remote.origin.fetch",
+                "+refs/*:refs/*",
+            ],
+            timeout=60,
+        )
+        run_command(
+            ["git", "-C", str(mirror), "remote", "update", "--prune"],
+            timeout=1800,
+        )
         if fetch_lfs:
             run_command(
                 ["git", "-C", str(mirror), "lfs", "fetch", "--all"],

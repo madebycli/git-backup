@@ -5,9 +5,9 @@ import os
 import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from github_backup_deck.models import BackupOptions
+from github_backup_deck.models import BackupFormat, BackupOptions
 
 APP_NAME = "github-backup-deck"
 
@@ -45,6 +45,8 @@ class AppConfig:
     include_action_artifacts: bool = False
     include_archived: bool = True
     fetch_lfs: bool = True
+    backup_format: BackupFormat = "zip"
+    versioned_snapshots: bool = True
 
     @property
     def backup_path(self) -> Path:
@@ -59,13 +61,17 @@ class AppConfig:
             include_action_artifacts=self.include_action_artifacts,
             include_archived=self.include_archived,
             fetch_lfs=self.fetch_lfs,
+            backup_format=self.backup_format,
+            versioned_snapshots=self.versioned_snapshots,
         )
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "AppConfig":
         defaults = asdict(cls())
         values = {key: payload.get(key, default) for key, default in defaults.items()}
-        return cls(**values)
+        if values["backup_format"] not in {"zip", "folder"}:
+            values["backup_format"] = "zip"
+        return cls(**cast(dict[str, Any], values))
 
 
 class ConfigStore:

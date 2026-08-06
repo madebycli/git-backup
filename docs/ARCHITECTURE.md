@@ -1,25 +1,32 @@
 # Architecture
 
 GitHub Backup Deck separates presentation, orchestration, GitHub access,
-storage and persistence.
+storage, snapshots and persistence.
 
-- `auth/` wraps GitHub CLI authentication.
+- `auth/` wraps GitHub CLI status and PTY-backed browser authentication.
 - `github/` calls `gh api` and normalizes repository/metadata responses.
-- `backup/` plans jobs, maintains Git mirrors, writes metadata and verifies output.
+- `backup/` plans jobs, maintains complete Git mirrors, writes metadata,
+  creates versioned repository snapshots and verifies output.
 - `storage/` discovers common mount points and probes candidate destinations.
-- `state.py` owns SQLite migrations and run/repository records.
-- `ipc/` exposes newline-delimited JSON requests over an XDG Unix socket.
-- `daemon.py` executes reusable background backup requests.
-- `gui/` contains the normal GTK window and a separate layer-shell overview.
+- `state.py` records run and repository results in SQLite.
+- `ipc/` exposes newline-delimited JSON over an XDG Unix socket.
+- `gui/` implements the GIF Picker-family layer-shell window and overview.
+- `terminal.py` provides a non-shell terminal fallback for interactive login.
 
-External commands are always invoked as argument arrays with timeouts. No
-shell command chain is used. Configuration contains preferences and paths only;
-GitHub credentials stay under management of `gh`.
+The incremental mirror is the current synchronization source. It is updated with
+`+refs/*:refs/*`, Git LFS is fetched, and `git fsck --full` runs before the
+mirror is copied into a new immutable snapshot. Each snapshot has a manifest and
+contains one ZIP or folder per repository.
+
+External commands are always argument arrays with explicit timeouts. No shell
+command chain is used. Configuration contains preferences and paths only;
+GitHub credentials remain under management of `gh`.
 
 ## Event flow
 
-Backup operations emit immutable `ProgressEvent` values. CLI output, GTK widgets
-and IPC clients consume the same events without coupling business logic to GTK.
+Backup operations emit immutable `ProgressEvent` values. CLI output, the
+layer-shell progress bar, the live log and IPC clients consume the same events
+without coupling business logic to GTK.
 
 ## Runtime paths
 

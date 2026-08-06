@@ -5,6 +5,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
+BackupFormat = Literal["zip", "folder"]
+
 
 def utc_now() -> str:
     return datetime.now(UTC).isoformat()
@@ -48,6 +50,8 @@ class BackupOptions:
     include_action_artifacts: bool = False
     include_archived: bool = True
     fetch_lfs: bool = True
+    backup_format: BackupFormat = "zip"
+    versioned_snapshots: bool = True
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,6 +67,7 @@ class RepositoryResult:
     status: Literal["ok", "failed", "skipped"]
     mirror_path: str
     metadata_path: str
+    snapshot_path: str | None = None
     error: str | None = None
 
 
@@ -76,6 +81,7 @@ class BackupSummary:
     repositories_ok: int
     repositories_failed: int
     results: tuple[RepositoryResult, ...]
+    snapshot_path: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)

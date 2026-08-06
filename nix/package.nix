@@ -14,10 +14,13 @@
   shared-mime-info,
   hicolor-icon-theme,
   gobject-introspection,
+  coreutils,
   git,
   git-lfs,
   gh,
   sqlite,
+  wl-clipboard,
+  xdg-utils,
 }:
 
 let
@@ -75,17 +78,20 @@ let
     hicolor-icon-theme
   ];
   runtimePath = lib.makeBinPath [
+    coreutils
     git
     git-lfs
     gh
     sqlite
+    wl-clipboard
+    xdg-utils
   ];
   pixbufLoaders = "${gdk-pixbuf}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache";
   fontconfigFile = "${fontconfig.out}/etc/fonts/fonts.conf";
 in
 stdenvNoCC.mkDerivation {
   pname = "github-backup-deck";
-  version = "0.1.0";
+  version = "0.2.0";
   src = lib.cleanSource ../.;
   strictDeps = true;
   dontBuild = true;
@@ -119,6 +125,8 @@ prepend("XDG_DATA_DIRS", "${dataPath}")
 prepend("PATH", "${runtimePath}")
 os.environ.setdefault("GDK_PIXBUF_MODULE_FILE", "${pixbufLoaders}")
 os.environ.setdefault("FONTCONFIG_FILE", "${fontconfigFile}")
+os.environ.setdefault("GH_BROWSER", "${xdg-utils}/bin/xdg-open")
+os.environ.setdefault("GITHUB_BACKUP_DECK_NOOP_BROWSER", "${coreutils}/bin/true")
 sys.path.insert(0, "$libexec")
 runpy.run_module("$module", run_name="__main__")
 PY
@@ -155,6 +163,8 @@ PY
     "$out/bin/github-backup-deck" probe "$TMPDIR/backup" | grep -q '"ok": true'
     test -x "$out/bin/github-backup-deck-daemon"
     test -x "$out/bin/github-backup-deck-overview"
+    test -x "${xdg-utils}/bin/xdg-open"
+    test -x "${wl-clipboard}/bin/wl-copy"
     test -f "$out/share/applications/github-backup-deck.desktop"
     test -f "$out/share/applications/github-backup-deck-overview.desktop"
     test -f "$out/share/icons/hicolor/scalable/apps/github-backup-deck.svg"
@@ -168,7 +178,7 @@ PY
   '';
 
   meta = {
-    description = "Graphical GitHub backup manager for Wayland";
+    description = "GIF Picker-style graphical GitHub backup manager for Wayland";
     homepage = "https://github.com/madebycli/git-backup";
     license = lib.licenses.mit;
     mainProgram = "github-backup-deck";

@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "github-backup-deck"
-version = "0.1.0"
-description = "Graphical GitHub backup manager for Wayland"
+version = "0.2.0"
+description = "GIF Picker-style graphical GitHub backup manager for Wayland"
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "madebycli" }]
-keywords = ["github", "backup", "gtk", "wayland", "nixos"]
+keywords = ["github", "backup", "gtk", "layer-shell", "wayland", "nixos"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",

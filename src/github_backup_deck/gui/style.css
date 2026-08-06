@@ -1,8 +1,159 @@
-window { background: #0d1117; color: #f0f6fc; }
-.title { font-size: 24px; font-weight: 700; }
-.subtitle { color: #8b949e; }
-.card { background: #161b22; border-radius: 12px; padding: 16px; }
-.success { color: #3fb950; }
-.warning { color: #d29922; }
-.error { color: #f85149; }
-button.suggested-action { background: #238636; color: white; }
+.picker-root {
+    background: rgba(14, 14, 14, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.picker-title {
+    color: rgba(255, 255, 255, 0.96);
+    font-size: 20px;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+.picker-hint {
+    color: rgba(255, 255, 255, 0.34);
+    font-size: 11px;
+    font-family: monospace;
+}
+
+.section-label {
+    color: rgba(255, 255, 255, 0.46);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+.card-title {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 15px;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+.card-detail {
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.deck-card {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.x-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 999px;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0;
+    font-family: monospace;
+}
+
+.x-btn:hover {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.24);
+}
+
+.chip,
+.action-btn,
+.primary-btn,
+.status-chip {
+    border-radius: 999px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.chip {
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.66);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    padding: 3px 13px;
+}
+
+.chip:hover,
+.chip:checked {
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.96);
+    border-color: rgba(255, 255, 255, 0.30);
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.10);
+    color: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    padding: 4px 15px;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.17);
+    border-color: rgba(255, 255, 255, 0.36);
+}
+
+.primary-btn {
+    background: rgba(255, 255, 255, 0.90);
+    color: rgba(14, 14, 14, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.96);
+    padding: 6px 18px;
+    font-weight: 700;
+}
+
+.primary-btn:hover {
+    background: white;
+}
+
+.status-chip {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    padding: 4px 12px;
+}
+
+.deck-progress {
+    min-height: 20px;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.deck-progress trough {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 999px;
+    min-height: 18px;
+}
+
+.deck-progress progress {
+    background: rgba(255, 255, 255, 0.86);
+    border-radius: 999px;
+}
+
+.log-scroll {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    min-height: 220px;
+}
+
+.log-view,
+.log-view text {
+    background: rgba(0, 0, 0, 0.12);
+    color: rgba(255, 255, 255, 0.70);
+    font-family: monospace;
+    font-size: 11px;
+}
+
+separator {
+    background: rgba(255, 255, 255, 0.08);
+    min-height: 1px;
+}
+
+scrolledwindow undershoot,
+scrolledwindow overshoot {
+    background: none;
+}
