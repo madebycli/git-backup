@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import subprocess
 import zipfile
 from pathlib import Path
 
 import pytest
 
+from github_backup_deck.backup.git_mirror import GitMirror
 from github_backup_deck.backup.snapshot import SnapshotWriter
-from github_backup_deck.backup.verifier import verify_destination, verify_export
+from github_backup_deck.backup.verifier import verify_destination, verify_export, verify_mirror
 from github_backup_deck.models import Repository
 
 
@@ -36,6 +38,35 @@ def test_empty_destination_is_valid(tmp_path: Path) -> None:
     result = verify_destination(tmp_path)
     assert result.ok
     assert result.mirrors_checked == 0
+
+
+def test_unborn_head_repository_is_valid_with_lfs_enabled(tmp_path: Path) -> None:
+    remote = tmp_path / "empty.git"
+    subprocess.run(
+        ["git", "init", "--bare", str(remote)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    repository = Repository("empty", "owner/empty", str(remote))
+    mirror = GitMirror().sync(
+        repository,
+        tmp_path / "workspace",
+        fetch_lfs=True,
+    )
+    metadata = tmp_path / "metadata"
+    metadata.mkdir()
+    (metadata / "repository.json").write_text(
+        '{"full_name":"owner/empty"}\n',
+        encoding="utf-8",
+    )
+
+    verify_mirror(
+        repository,
+        mirror,
+        metadata,
+        fetch_lfs=True,
+    )
 
 
 def test_folder_verification_rejects_unexpected_file(tmp_path: Path) -> None:
