@@ -1,6 +1,8 @@
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from github_backup_deck.backup.snapshot import SnapshotWriter
 from github_backup_deck.models import Repository
 
@@ -42,3 +44,15 @@ def test_repository_folder_contains_only_verified_export(tmp_path: Path) -> None
     assert (target / "repository.git" / "HEAD").is_file()
     assert (target / "metadata" / "repository.json").is_file()
     assert (target / "backup-manifest.json").is_file()
+
+
+def test_repository_export_rejects_symlink_source(tmp_path: Path) -> None:
+    mirror, metadata, repository = _source(tmp_path)
+    outside = tmp_path / "outside.txt"
+    outside.write_text("secret", encoding="utf-8")
+    (mirror / "unsafe").symlink_to(outside)
+    snapshot = tmp_path / "snapshot"
+    snapshot.mkdir()
+
+    with pytest.raises(RuntimeError, match="unsafe symlink"):
+        SnapshotWriter().write(repository, mirror, metadata, snapshot, "zip")
