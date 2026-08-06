@@ -8,22 +8,27 @@ def choose_storage(parent: Any, current: Path) -> Path | None:
     import gi
 
     gi.require_version("Gtk", "3.0")
-    from gi.repository import Gtk
+    gi.require_version("GtkLayerShell", "0.1")
+    from gi.repository import Gtk, GtkLayerShell
 
-    dialog = Gtk.FileChooserDialog(
-        title="Choose backup folder",
-        transient_for=parent,
-        action=Gtk.FileChooserAction.SELECT_FOLDER,
-    )
-    dialog.add_buttons(
-        "Cancel",
-        Gtk.ResponseType.CANCEL,
+    dialog = Gtk.FileChooserNative.new(
+        "Choose backup folder",
+        parent,
+        Gtk.FileChooserAction.SELECT_FOLDER,
         "Choose",
-        Gtk.ResponseType.OK,
+        "Cancel",
     )
+    dialog.set_modal(True)
     if current.exists():
         dialog.set_current_folder(str(current))
-    response = dialog.run()
-    selected = Path(dialog.get_filename()) if response == Gtk.ResponseType.OK else None
-    dialog.destroy()
-    return selected
+    parent.set_sensitive(False)
+    try:
+        GtkLayerShell.set_keyboard_mode(parent, GtkLayerShell.KeyboardMode.ON_DEMAND)
+        response = dialog.run()
+        filename = dialog.get_filename() if response == Gtk.ResponseType.ACCEPT else None
+    finally:
+        dialog.destroy()
+        GtkLayerShell.set_keyboard_mode(parent, GtkLayerShell.KeyboardMode.EXCLUSIVE)
+        parent.set_sensitive(True)
+        parent.present()
+    return Path(filename) if filename else None

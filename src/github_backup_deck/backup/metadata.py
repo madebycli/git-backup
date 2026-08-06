@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import threading
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -18,25 +19,42 @@ class MetadataWriter:
         self.client = client or GitHubClient()
 
     def write(
-        self, repository: Repository, destination: Path, options: BackupOptions
+        self,
+        repository: Repository,
+        workspace: Path,
+        options: BackupOptions,
+        *,
+        cancel_event: threading.Event | None = None,
     ) -> Path:
-        metadata_dir = destination / "metadata" / repository.full_name
+        metadata_dir = workspace / "metadata" / repository.full_name
         metadata_dir.mkdir(parents=True, exist_ok=True)
         _atomic_json(metadata_dir / "repository.json", repository.to_dict())
         if options.include_issues:
             _atomic_jsonl(
                 metadata_dir / "issues.jsonl",
-                fetch_issues(self.client, repository.full_name),
+                fetch_issues(
+                    self.client,
+                    repository.full_name,
+                    cancel_event=cancel_event,
+                ),
             )
         if options.include_pull_requests:
             _atomic_jsonl(
                 metadata_dir / "pulls.jsonl",
-                fetch_pulls(self.client, repository.full_name),
+                fetch_pulls(
+                    self.client,
+                    repository.full_name,
+                    cancel_event=cancel_event,
+                ),
             )
         if options.include_releases:
             _atomic_jsonl(
                 metadata_dir / "releases.jsonl",
-                fetch_releases(self.client, repository.full_name),
+                fetch_releases(
+                    self.client,
+                    repository.full_name,
+                    cancel_event=cancel_event,
+                ),
             )
         if options.include_action_artifacts:
             _atomic_json(

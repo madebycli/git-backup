@@ -1,38 +1,71 @@
 # Architecture
 
-GitHub Backup Deck separates presentation, orchestration, GitHub access,
-storage, snapshots and persistence.
+GitHub Backup Deck separates presentation, job ownership, GitHub access,
+staging, publication and persistence.
 
 - `auth/` wraps GitHub CLI status and PTY-backed browser authentication.
-- `github/` calls `gh api` and normalizes repository/metadata responses.
-- `backup/` plans jobs, maintains complete Git mirrors, writes metadata,
-  creates versioned repository snapshots and verifies output.
-- `storage/` discovers common mount points and probes candidate destinations.
-- `state.py` records run and repository results in SQLite.
-- `ipc/` exposes newline-delimited JSON over an XDG Unix socket.
-- `gui/` implements the GIF Picker-family layer-shell window and overview.
+- `github/` calls `gh api` and normalizes repository and metadata responses.
+- `backup/` downloads complete Git mirrors, writes metadata, hashes exports,
+  verifies output and atomically publishes a run.
+- `daemon.py` owns the long-running job independently of any UI process.
+- `ipc/` exposes protocol-v3 newline-delimited JSON over a versioned XDG Unix
+  socket.
+- `state.py` records completed summaries in SQLite.
+- `gui/` implements the GIF Picker-family overlay and reconnecting job client.
+- `notifications.py` sends best-effort desktop notifications with `notify-send`.
 - `terminal.py` provides a non-shell terminal fallback for interactive login.
 
-The incremental mirror is the current synchronization source. It is updated with
-`+refs/*:refs/*`, Git LFS is fetched, and `git fsck --full` runs before the
-mirror is copied into a new immutable snapshot. Each snapshot has a manifest and
-contains one ZIP or folder per repository.
+## Job lifetime
 
-External commands are always argument arrays with explicit timeouts. No shell
-command chain is used. Configuration contains preferences and paths only;
-GitHub credentials remain under management of `gh`.
+`IpcClient.ensure_server()` launches `github-backup-deck-daemon` detached from
+the overlay when no compatible protocol-v3 socket exists. The daemon accepts
+`status`, `start_backup` and `cancel_backup`. Only one job may run at a time.
 
-## Event flow
+Job status is atomically persisted under the XDG state directory. Current job
+events are also appended to a bounded-per-run JSONL log, so UI clients can
+reconnect after being closed. A daemon restart marks an interrupted job as
+failed instead of pretending it is still active.
 
-Backup operations emit immutable `ProgressEvent` values. CLI output, the
-layer-shell progress bar, the live log and IPC clients consume the same events
-without coupling business logic to GTK.
+## Staging and publication
+
+The selected destination is not used as a working tree. A fixed hidden staging
+directory is created next to it on the same filesystem. A non-blocking `flock`
+prevents UI, CLI or daemon processes from modifying one destination
+concurrently.
+
+The staging directory is removed before work begins and from a `finally` block.
+An unexpected hard process kill may leave staging temporarily, but the next run
+removes it before downloading anything.
+
+For each repository:
+
+1. `git clone --mirror` creates a temporary bare mirror;
+2. the fetch refspec is forced to `+refs/*:refs/*`;
+3. Git and optional LFS data are fetched with cancellable process groups;
+4. remote refs are compared with local refs, with one race-safe refetch retry;
+5. metadata JSON and JSONL files are parsed and validated;
+6. every source file receives a SHA-256 entry;
+7. exactly one ZIP or folder export is generated and checksum-verified.
+
+The complete publish tree is verified before rename and re-verified afterward.
+Versioned runs use a unique path. Non-versioned `current` publication keeps the
+previous directory until post-publication verification succeeds, allowing
+rollback on a final-device error.
+
+## Cancellation
+
+A single `threading.Event` is propagated from the daemon through planning,
+`gh api`, Git operations, hashing, copying, ZIP streaming and final verification.
+External commands run in their own process group; cancellation sends SIGTERM
+and escalates to SIGKILL after a bounded grace period.
 
 ## Runtime paths
 
 - Config: `$XDG_CONFIG_HOME/github-backup-deck/config.json`
-- State: `$XDG_STATE_HOME/github-backup-deck/state.sqlite3`
-- Runtime socket: `$XDG_RUNTIME_DIR/github-backup-deck/control.sock`
-- Cache: `$XDG_CACHE_HOME/github-backup-deck/`
+- SQLite state: `$XDG_STATE_HOME/github-backup-deck/state.sqlite3`
+- Job status: `$XDG_STATE_HOME/github-backup-deck/job-status.json`
+- Job events: `$XDG_STATE_HOME/github-backup-deck/job-events.jsonl`
+- Daemon log: `$XDG_STATE_HOME/github-backup-deck/daemon.log`
+- Protocol socket: `$XDG_RUNTIME_DIR/github-backup-deck/control-v3.sock`
 
-All fallbacks are derived from the current user's home directory.
+No root service or credential file is created.

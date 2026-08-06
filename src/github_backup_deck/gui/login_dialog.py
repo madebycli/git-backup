@@ -91,6 +91,8 @@ def run_login(parent: Any) -> bool:
     fallback_box.pack_end(terminal_button, False, False, 0)
     content.pack_start(fallback_box, False, False, 0)
 
+    auth = GitHubCliAuth()
+    initial_status = auth.status()
     state: dict[str, Any] = {
         "active": True,
         "browser_opened": False,
@@ -98,10 +100,10 @@ def run_login(parent: Any) -> bool:
         "error": None,
         "done": False,
         "terminal_mode": False,
+        "initially_authenticated": initial_status.authenticated,
     }
     cancel_event = threading.Event()
     noop_browser = os.environ.get("GITHUB_BACKUP_DECK_NOOP_BROWSER") or shutil.which("true")
-    auth = GitHubCliAuth()
 
     def open_browser() -> None:
         try:
@@ -166,9 +168,17 @@ def run_login(parent: Any) -> bool:
                 return
             time.sleep(1.0)
 
+    def check_terminal_worker() -> None:
+        status = auth.status()
+        if status.authenticated:
+            GLib.idle_add(finish, True, None)
+        else:
+            GLib.idle_add(
+                status_label.set_text,
+                status.error or "Terminal login is not complete yet.",
+            )
+
     def open_terminal_login() -> None:
-        if state["terminal_mode"]:
-            return
         try:
             terminal_name = launch_login_terminal()
         except RuntimeError as exc:
@@ -176,20 +186,40 @@ def run_login(parent: Any) -> bool:
             return
         state["terminal_mode"] = True
         cancel_event.set()
-        terminal_button.set_sensitive(False)
+        terminal_button.set_label("Check login status")
+        terminal_button.set_sensitive(True)
         spinner.start()
         status_label.set_text(
-            f"Login opened in {terminal_name}. This dialog will close after authentication."
+            f"Login opened in {terminal_name}. Complete it there, then return here."
         )
+        if not state["initially_authenticated"]:
+            threading.Thread(
+                target=terminal_poll_worker,
+                name="github-terminal-login-poll",
+                daemon=True,
+            ).start()
+
+    def terminal_action() -> None:
+        if not state["terminal_mode"]:
+            open_terminal_login()
+            return
+        terminal_button.set_sensitive(False)
+
+        def worker() -> None:
+            try:
+                check_terminal_worker()
+            finally:
+                GLib.idle_add(terminal_button.set_sensitive, True)
+
         threading.Thread(
-            target=terminal_poll_worker,
-            name="github-terminal-login-poll",
+            target=worker,
+            name="github-terminal-login-check",
             daemon=True,
         ).start()
 
     copy_button.connect("clicked", lambda _button: copy_code())
     open_button.connect("clicked", lambda _button: open_browser())
-    terminal_button.connect("clicked", lambda _button: open_terminal_login())
+    terminal_button.connect("clicked", lambda _button: terminal_action())
     dialog.show_all()
     code_box.hide()
     threading.Thread(target=browser_worker, name="github-login", daemon=True).start()
