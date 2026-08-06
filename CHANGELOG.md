@@ -2,6 +2,20 @@
 
 All notable application changes are documented here.
 
+## 0.3.4 — 2026-08-06
+
+### Changed
+
+- Replaced GTK theme accent colors in the main interface with the monochrome palette used by the GIF Picker.
+- Buttons, toggles, focus outlines, the status chip, spinner, scrollbar and progress fill now use neutral white alpha levels on the Picker's dark background.
+- The main progress fill remains inset inside its trough and no longer inherits a green GTK accent color.
+- Added regression checks that prevent GTK theme accent variables from returning to the main UI stylesheet.
+
+### Release scope
+
+- Application UI and tests only.
+- No Nix, NixOS, flake, lock-file, catalog, module, authentication or backup-engine changes are included.
+
 ## 0.3.3 — 2026-08-06
 
 ### Fixed

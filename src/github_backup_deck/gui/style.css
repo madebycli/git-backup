@@ -1,54 +1,54 @@
 .picker-root {
-    background: alpha(@theme_bg_color, 0.97);
-    border: 1px solid alpha(@theme_fg_color, 0.12);
+    background: rgba(14, 14, 14, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
-    color: @theme_fg_color;
+    color: rgba(255, 255, 255, 0.86);
 }
 
 .picker-title {
-    color: alpha(@theme_fg_color, 0.92);
+    color: rgba(255, 255, 255, 0.92);
     font-size: 20px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .picker-hint {
-    color: alpha(@theme_fg_color, 0.30);
+    color: rgba(255, 255, 255, 0.30);
     font-size: 11px;
     font-family: monospace;
 }
 
 .section-label {
-    color: alpha(@theme_fg_color, 0.48);
+    color: rgba(255, 255, 255, 0.48);
     font-size: 11px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .card-title {
-    color: alpha(@theme_fg_color, 0.90);
+    color: rgba(255, 255, 255, 0.90);
     font-size: 15px;
     font-weight: 700;
     font-family: monospace;
 }
 
 .card-detail {
-    color: alpha(@theme_fg_color, 0.62);
+    color: rgba(255, 255, 255, 0.62);
     font-size: 12px;
     font-family: monospace;
 }
 
 .deck-card {
-    background: alpha(@theme_fg_color, 0.03);
-    border: 1px solid alpha(@theme_fg_color, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     padding: 14px;
 }
 
 .x-btn {
-    background: alpha(@theme_fg_color, 0.05);
-    color: alpha(@theme_fg_color, 0.90);
-    border: 1px solid alpha(@theme_fg_color, 0.10);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.90);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 999px;
     min-width: 30px;
     min-height: 30px;
@@ -57,8 +57,8 @@
 }
 
 .x-btn:hover {
-    background: alpha(@theme_fg_color, 0.10);
-    border-color: alpha(@theme_fg_color, 0.24);
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.24);
 }
 
 .chip,
@@ -72,112 +72,140 @@
 }
 
 .chip {
-    background: alpha(@theme_fg_color, 0.04);
-    color: alpha(@theme_fg_color, 0.65);
-    border: 1px solid alpha(@theme_fg_color, 0.10);
-    padding: 3px 13px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    padding: 2px 14px;
 }
 
 .chip:hover {
-    background: alpha(@theme_fg_color, 0.08);
-    color: alpha(@theme_fg_color, 0.84);
-    border-color: alpha(@theme_fg_color, 0.20);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.84);
+    border-color: rgba(255, 255, 255, 0.20);
 }
 
 .chip:checked {
-    background: alpha(@theme_fg_color, 0.14);
-    color: alpha(@theme_fg_color, 0.95);
-    border-color: alpha(@theme_fg_color, 0.30);
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.95);
+    border-color: rgba(255, 255, 255, 0.30);
 }
 
 .action-btn {
-    background: alpha(@theme_fg_color, 0.05);
-    color: alpha(@theme_fg_color, 0.82);
-    border: 1px solid alpha(@theme_fg_color, 0.13);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.13);
     padding: 4px 15px;
 }
 
 .action-btn:hover {
-    background: alpha(@theme_fg_color, 0.10);
-    color: alpha(@theme_fg_color, 0.94);
-    border-color: alpha(@theme_fg_color, 0.26);
+    background: rgba(255, 255, 255, 0.10);
+    color: rgba(255, 255, 255, 0.94);
+    border-color: rgba(255, 255, 255, 0.26);
 }
 
 .primary-btn {
-    background: alpha(@theme_selected_bg_color, 0.72);
-    color: @theme_selected_fg_color;
-    border: 1px solid alpha(@theme_selected_bg_color, 0.82);
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.30);
     padding: 6px 18px;
     font-weight: 700;
 }
 
 .primary-btn:hover {
-    background: alpha(@theme_selected_bg_color, 0.88);
-    border-color: @theme_selected_bg_color;
+    background: rgba(255, 255, 255, 0.20);
+    color: rgba(255, 255, 255, 0.98);
+    border-color: rgba(255, 255, 255, 0.42);
 }
 
 .danger-btn {
-    background: alpha(@theme_fg_color, 0.035);
-    color: alpha(@theme_fg_color, 0.64);
-    border: 1px solid alpha(@theme_fg_color, 0.12);
+    background: rgba(255, 255, 255, 0.035);
+    color: rgba(255, 255, 255, 0.64);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 6px 18px;
     font-weight: 700;
 }
 
 .danger-btn:hover {
-    background: alpha(@theme_fg_color, 0.09);
-    color: alpha(@theme_fg_color, 0.90);
-    border-color: alpha(@theme_fg_color, 0.24);
+    background: rgba(255, 255, 255, 0.09);
+    color: rgba(255, 255, 255, 0.90);
+    border-color: rgba(255, 255, 255, 0.24);
 }
 
 .status-chip {
-    background: alpha(@theme_fg_color, 0.035);
-    color: alpha(@theme_fg_color, 0.58);
-    border: 1px solid alpha(@theme_fg_color, 0.12);
+    background: rgba(255, 255, 255, 0.035);
+    color: rgba(255, 255, 255, 0.58);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 2px 10px;
     font-size: 11px;
     font-weight: 500;
+}
+
+.chip:disabled,
+.action-btn:disabled,
+.primary-btn:disabled,
+.danger-btn:disabled {
+    opacity: 0.38;
+}
+
+button:focus,
+checkbutton:focus,
+radiobutton:focus {
+    outline-color: rgba(255, 255, 255, 0.40);
+}
+
+spinner {
+    color: rgba(255, 255, 255, 0.64);
 }
 
 .deck-progress {
     min-height: 22px;
     margin-left: 12px;
     margin-right: 12px;
+    color: rgba(255, 255, 255, 0.72);
     font-family: monospace;
     font-size: 11px;
 }
 
 .deck-progress trough {
-    background: alpha(@theme_fg_color, 0.05);
-    border: 1px solid alpha(@theme_fg_color, 0.10);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 999px;
     min-height: 18px;
     padding: 2px;
 }
 
 .deck-progress progress {
-    background: alpha(@theme_selected_bg_color, 0.72);
+    background: rgba(255, 255, 255, 0.42);
     border-radius: 999px;
     min-height: 14px;
 }
 
 .log-scroll {
-    background: alpha(@theme_bg_color, 0.88);
-    border: 1px solid alpha(@theme_fg_color, 0.08);
+    background: rgba(14, 14, 14, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     min-height: 260px;
 }
 
 .log-view,
 .log-view text {
-    background: alpha(@theme_bg_color, 0.92);
-    color: alpha(@theme_fg_color, 0.74);
+    background: rgba(14, 14, 14, 0.92);
+    color: rgba(255, 255, 255, 0.74);
     font-family: monospace;
     font-size: 11px;
 }
 
+scrollbar slider {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+}
+
+scrollbar slider:hover {
+    background: rgba(255, 255, 255, 0.26);
+}
+
 separator {
-    background: alpha(@theme_fg_color, 0.08);
+    background: rgba(255, 255, 255, 0.08);
     min-height: 1px;
 }
 
