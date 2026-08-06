@@ -5,7 +5,7 @@ import threading
 import zipfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, BinaryIO
+from typing import IO, Any
 
 from github_backup_deck.models import BackupFormat, Repository
 from github_backup_deck.process import CommandCancelled, run_command
@@ -124,21 +124,29 @@ def verify_metadata(metadata: Path) -> None:
     if not isinstance(payload, dict) or not payload.get("full_name"):
         raise RuntimeError(f"Repository metadata has no full_name: {repository_file}")
     for path in metadata.glob("*.jsonl"):
-        number = 0
         try:
             with path.open(encoding="utf-8") as handle:
-                for number, line in enumerate(handle, start=1):
-                    if line.strip():
+                for line_number, line in enumerate(handle, start=1):
+                    if not line.strip():
+                        continue
+                    try:
                         value = json.loads(line)
-                        if not isinstance(value, dict):
-                            raise ValueError("line is not an object")
-        except (OSError, json.JSONDecodeError, ValueError) as exc:
-            raise RuntimeError(f"Invalid JSONL metadata {path}:{number}: {exc}") from exc
+                    except json.JSONDecodeError as exc:
+                        raise RuntimeError(
+                            f"Invalid JSONL metadata {path}:{line_number}: {exc}"
+                        ) from exc
+                    if not isinstance(value, dict):
+                        raise RuntimeError(
+                            f"Invalid JSONL metadata {path}:{line_number}: "
+                            "line is not an object"
+                        )
+        except OSError as exc:
+            raise RuntimeError(f"Could not read JSONL metadata {path}: {exc}") from exc
 
 
 def _verify_hash(
     expected: str,
-    chunks: BinaryIO,
+    chunks: IO[bytes],
     cancel_event: threading.Event | None,
 ) -> None:
     import hashlib
