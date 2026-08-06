@@ -28,14 +28,13 @@ jobs:
 
           path = Path("src/github_backup_deck/gui/main_window.py")
           text = path.read_text(encoding="utf-8")
-          old = '''            self.bar = Gtk.ProgressBar()
-              self.bar.set_show_text(True)
-          '''
-          new = '''            self.bar = Gtk.ProgressBar()
-              self.bar.set_margin_start(12)
-              self.bar.set_margin_end(12)
-              self.bar.set_show_text(True)
-          '''
+          old = "            self.bar = Gtk.ProgressBar()\n            self.bar.set_show_text(True)\n"
+          new = (
+              "            self.bar = Gtk.ProgressBar()\n"
+              "            self.bar.set_margin_start(12)\n"
+              "            self.bar.set_margin_end(12)\n"
+              "            self.bar.set_show_text(True)\n"
+          )
           if old not in text:
               raise SystemExit("expected progress bar block not found")
           path.write_text(text.replace(old, new, 1), encoding="utf-8")
