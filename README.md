@@ -1,5 +1,9 @@
 # GitHub Backup Deck
 
+Current release: **0.3.2**. Runtime, Python package metadata and Nix package
+version are derived from one canonical version file and verified during the Nix
+install check.
+
 GitHub Backup Deck is a Wayland layer-shell backup manager in the same visual
 family as `madebycli/GIF-Player` and its GIF Picker. It discovers every
 repository visible to the active GitHub CLI account, downloads every advertised
