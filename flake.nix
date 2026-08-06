@@ -85,7 +85,7 @@
               chmod 700 "$XDG_RUNTIME_DIR"
               github-backup-deck --help >/dev/null
               github-backup-deck doctor | grep -q '"ok": true'
-              github-backup-deck status | grep -q 'never-run'
+              github-backup-deck status | grep -q '"state": "offline"'
               github-backup-deck probe "$TMPDIR/backup" | grep -q '"ok": true'
               touch "$out"
             '';
