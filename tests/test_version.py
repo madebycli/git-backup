@@ -24,4 +24,4 @@ def test_packaging_uses_canonical_version_file() -> None:
         "src/github_backup_deck/VERSION"
     ]
     assert "builtins.readFile ../src/github_backup_deck/VERSION" in nix_package
-    assert 'github-backup-deck\" --version' in nix_package
+    assert 'github-backup-deck" --version' in nix_package
