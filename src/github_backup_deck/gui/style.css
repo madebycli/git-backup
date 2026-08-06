@@ -141,6 +141,8 @@
 
 .deck-progress {
     min-height: 20px;
+    margin-left: 12px;
+    margin-right: 12px;
     font-family: monospace;
     font-size: 11px;
 }

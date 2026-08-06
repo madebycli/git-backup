@@ -26,6 +26,7 @@
 }:
 
 let
+  packageVersion = lib.removeSuffix "\n" (builtins.readFile ../src/github_backup_deck/VERSION);
   python = python3.withPackages (
     pythonPackages: with pythonPackages; [
       pygobject3
@@ -119,7 +120,7 @@ let
 in
 stdenvNoCC.mkDerivation {
   pname = "github-backup-deck";
-  version = "0.3.1";
+  version = packageVersion;
   src = lib.cleanSource ../.;
   strictDeps = true;
   dontBuild = true;
@@ -185,8 +186,10 @@ PY
     mkdir -p "$HOME" "$XDG_RUNTIME_DIR"
     chmod 700 "$XDG_RUNTIME_DIR"
 
+    test "$("$out/bin/github-backup-deck" --version)" = "${packageVersion}"
     "$out/bin/github-backup-deck" --help >/dev/null
     "$out/bin/github-backup-deck" doctor > doctor.json
+    grep -q '"version": "${packageVersion}"' doctor.json
     grep -q '"ok": true' doctor.json
     grep -q '"gtk_file_chooser_schema": true' doctor.json
     "$out/bin/github-backup-deck" status | grep -q '"state": "offline"'
