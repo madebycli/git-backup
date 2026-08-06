@@ -3,6 +3,7 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
+from github_backup_deck.backup.git_state import has_refs
 from github_backup_deck.models import Repository
 from github_backup_deck.process import run_command
 
@@ -48,7 +49,7 @@ class GitMirror:
             timeout=3600,
             cancel_event=cancel_event,
         )
-        if fetch_lfs:
+        if fetch_lfs and has_refs(mirror, cancel_event=cancel_event):
             run_command(
                 ["git", "-C", str(mirror), "lfs", "fetch", "--all"],
                 timeout=7200,
