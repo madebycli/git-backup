@@ -1,0 +1,54 @@
+name: Apply progress bar inset
+
+on:
+  push:
+    branches:
+      - fix/version-single-source-0.3.1
+    paths:
+      - .github/workflows/apply-progress-inset.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          ref: fix/version-single-source-0.3.1
+          fetch-depth: 0
+      - name: Inset progress bar symmetrically
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/github_backup_deck/gui/main_window.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''            self.bar = Gtk.ProgressBar()
+              self.bar.set_show_text(True)
+          '''
+          new = '''            self.bar = Gtk.ProgressBar()
+              self.bar.set_margin_start(12)
+              self.bar.set_margin_end(12)
+              self.bar.set_show_text(True)
+          '''
+          if old not in text:
+              raise SystemExit("expected progress bar block not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
+          rm .github/workflows/apply-progress-inset.yml
+          python3 -m compileall -q src
+          git diff --check
+      - name: Publish progress alignment
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'fix(ui): inset progress bar symmetrically'
+          git push origin HEAD:fix/version-single-source-0.3.1
