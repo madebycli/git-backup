@@ -72,20 +72,16 @@ let
     installPhase = ''
       destination="$out/share/glib-2.0/schemas"
       mkdir -p "$destination"
-      for source in ${glib} ${gtk3} ${gsettings-desktop-schemas}; do
-        [ -d "$source/share" ] || continue
-        while IFS= read -r schema; do
-          install -m644 "$schema" "$destination/$(basename "$schema")"
-        done < <(
-          find -L "$source/share" -type f \
-            \( -name '*.gschema.xml' -o -name '*.gschema.override' \) \
-            -print
-        )
-      done
-      test -n "$(find "$destination" -maxdepth 1 -name '*.gschema.xml' -print -quit)" || {
-        echo "no GSettings schemas were collected" >&2
+      schema="$(
+        find -L ${gtk3}/share -type f \
+          -name 'org.gtk.Settings.FileChooser.gschema.xml' \
+          -print -quit
+      )"
+      test -n "$schema" || {
+        echo "missing GTK FileChooser GSettings schema" >&2
         exit 1
       }
+      install -m644 "$schema" "$destination/"
       ${glib.dev}/bin/glib-compile-schemas --strict "$destination"
       test -f "$destination/gschemas.compiled"
       ${glib.bin}/bin/gsettings --schemadir "$destination" list-schemas \
