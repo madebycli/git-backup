@@ -2,6 +2,20 @@
 
 All notable application changes are documented here.
 
+## 0.3.3 — 2026-08-06
+
+### Fixed
+
+- Empty GitHub repositories with an unborn `HEAD` are now treated as valid repositories instead of failing the complete backup run.
+- Git LFS fetch and verification no longer try to resolve `HEAD` when a mirror contains no commits.
+- Added a real bare-repository regression test for the empty-repository case.
+- The progress fill now has an actual inner inset inside the trough, so it no longer paints over the rounded border at either end.
+
+### Release scope
+
+- Application repository only.
+- No Nix, NixOS, flake, lock-file, catalog, or module changes are included.
+
 ## 0.3.2 — 2026-08-06
 
 ### Fixed
