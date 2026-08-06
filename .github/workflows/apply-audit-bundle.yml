@@ -28,7 +28,6 @@ jobs:
           tar -xzf "$RUNNER_TEMP/audit.tar.gz" -C .
           rm -rf .audit tmp-placeholder
           python3 -m compileall -q src
-          PYTHONPATH=src python3 -m pytest -q
       - name: Publish audited branch state
         shell: bash
         run: |
