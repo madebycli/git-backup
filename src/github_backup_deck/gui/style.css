@@ -85,9 +85,14 @@
 }
 
 .chip:checked {
-    background: rgba(255, 255, 255, 0.14);
+    background: alpha(@theme_selected_bg_color, 0.10);
     color: rgba(255, 255, 255, 0.95);
-    border-color: rgba(255, 255, 255, 0.30);
+    border-color: alpha(@theme_selected_bg_color, 0.62);
+}
+
+.chip:checked:hover {
+    background: alpha(@theme_selected_bg_color, 0.16);
+    border-color: alpha(@theme_selected_bg_color, 0.78);
 }
 
 .action-btn {
@@ -104,17 +109,16 @@
 }
 
 .primary-btn {
-    background: rgba(255, 255, 255, 0.14);
-    color: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.30);
+    background: alpha(@theme_selected_bg_color, 0.38);
+    color: @theme_selected_fg_color;
+    border: 1px solid alpha(@theme_selected_bg_color, 0.72);
     padding: 6px 18px;
     font-weight: 700;
 }
 
 .primary-btn:hover {
-    background: rgba(255, 255, 255, 0.20);
-    color: rgba(255, 255, 255, 0.98);
-    border-color: rgba(255, 255, 255, 0.42);
+    background: alpha(@theme_selected_bg_color, 0.52);
+    border-color: alpha(@theme_selected_bg_color, 0.92);
 }
 
 .danger-btn {
@@ -150,11 +154,11 @@
 button:focus,
 checkbutton:focus,
 radiobutton:focus {
-    outline-color: rgba(255, 255, 255, 0.40);
+    outline-color: alpha(@theme_selected_bg_color, 0.72);
 }
 
 spinner {
-    color: rgba(255, 255, 255, 0.64);
+    color: alpha(@theme_selected_bg_color, 0.78);
 }
 
 .deck-progress {
@@ -175,7 +179,7 @@ spinner {
 }
 
 .deck-progress progress {
-    background: rgba(255, 255, 255, 0.42);
+    background: alpha(@theme_selected_bg_color, 0.78);
     border-radius: 999px;
     min-height: 14px;
 }
