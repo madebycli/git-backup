@@ -18,7 +18,7 @@ def test_main_ui_uses_picker_base_with_sparse_gtk_accents() -> None:
     assert "rgba(14, 14, 14, 0.97)" in css
     assert "rgba(255, 255, 255, 0.04)" in _block(css, ".chip")
     assert "@theme_selected_bg_color" in css
-    assert "@theme_selected_fg_color" in css
+    assert "@theme_selected_fg_color" not in css
     assert "@theme_fg_color" not in css
     assert "@theme_bg_color" not in css
 
@@ -37,13 +37,22 @@ def test_selected_controls_use_subtle_accent_not_solid_fill() -> None:
     assert "alpha(@theme_selected_bg_color, 0.62)" in checked
 
 
-def test_primary_action_and_progress_use_gtk_accent() -> None:
+def test_primary_action_uses_readable_white_text_on_gtk_accent() -> None:
     css = _stylesheet()
     primary = _block(css, ".primary-btn")
+    label = _block(css, ".primary-btn label")
+    hover_label = _block(css, ".primary-btn:hover label")
+
+    assert "alpha(@theme_selected_bg_color, 0.38)" in primary
+    assert "rgba(255, 255, 255, 0.98)" in primary
+    assert "rgba(255, 255, 255, 0.98)" in label
+    assert "rgba(255, 255, 255, 1.0)" in hover_label
+
+
+def test_progress_bar_uses_gtk_accent_and_remains_inset() -> None:
+    css = _stylesheet()
     progress = _block(css, ".deck-progress progress")
     trough = _block(css, ".deck-progress trough")
 
-    assert "alpha(@theme_selected_bg_color, 0.38)" in primary
-    assert "@theme_selected_fg_color" in primary
     assert "alpha(@theme_selected_bg_color, 0.78)" in progress
     assert "padding: 2px" in trough

@@ -110,15 +110,29 @@
 
 .primary-btn {
     background: alpha(@theme_selected_bg_color, 0.38);
-    color: @theme_selected_fg_color;
+    color: rgba(255, 255, 255, 0.98);
     border: 1px solid alpha(@theme_selected_bg_color, 0.72);
     padding: 6px 18px;
     font-weight: 700;
 }
 
+.primary-btn label {
+    color: rgba(255, 255, 255, 0.98);
+}
+
 .primary-btn:hover {
     background: alpha(@theme_selected_bg_color, 0.52);
+    color: rgba(255, 255, 255, 1.0);
     border-color: alpha(@theme_selected_bg_color, 0.92);
+}
+
+.primary-btn:hover label {
+    color: rgba(255, 255, 255, 1.0);
+}
+
+.primary-btn:disabled,
+.primary-btn:disabled label {
+    color: rgba(255, 255, 255, 0.62);
 }
 
 .danger-btn {

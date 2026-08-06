@@ -2,6 +2,19 @@
 
 All notable application changes are documented here.
 
+## 0.3.6 — 2026-08-07
+
+### Fixed
+
+- Forced the primary `Start backup` button and its inner GTK label to render with high-contrast white text.
+- Kept the GTK accent-colored background, border and hover treatment introduced in 0.3.5.
+- Added regression coverage for the active and hover text colors so GTK theme foreground colors cannot make the button unreadable again.
+
+### Release scope
+
+- Application UI and tests only.
+- No Nix, NixOS, flake, lock-file, catalog, module, authentication or backup-engine changes are included.
+
 ## 0.3.5 — 2026-08-07
 
 ### Changed
