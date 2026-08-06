@@ -76,7 +76,6 @@ let
     pname = "github-backup-deck-runtime-schemas";
     version = "1";
     dontUnpack = true;
-    nativeBuildInputs = [ glib ];
     installPhase = ''
       destination="$out/share/glib-2.0/schemas"
       mkdir -p "$destination"
@@ -87,9 +86,13 @@ let
           \( -name '*.gschema.xml' -o -name '*.gschema.override' \) \
           -exec cp -f {} "$destination/" \;
       done < ${schemaSourceClosure}/store-paths
-      glib-compile-schemas "$destination"
+      test -n "$(find "$destination" -maxdepth 1 -name '*.gschema.xml' -print -quit)" || {
+        echo "no GSettings schemas were collected" >&2
+        exit 1
+      }
+      ${glib.bin}/bin/glib-compile-schemas --strict "$destination"
       test -f "$destination/gschemas.compiled"
-      gsettings --schemadir "$destination" list-schemas \
+      ${glib.bin}/bin/gsettings --schemadir "$destination" list-schemas \
         | grep -qx 'org.gtk.Settings.FileChooser'
     '';
   };
