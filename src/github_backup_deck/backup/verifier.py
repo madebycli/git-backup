@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import IO, Any
 
+from github_backup_deck.backup.git_state import has_resolvable_head
 from github_backup_deck.models import BackupFormat, Repository
 from github_backup_deck.process import CommandCancelled, run_command
 
@@ -90,7 +91,7 @@ def verify_mirror(
             timeout=3600,
             cancel_event=cancel_event,
         )
-        if fetch_lfs:
+        if fetch_lfs and has_resolvable_head(mirror, cancel_event=cancel_event):
             run_command(
                 ["git", "-C", str(mirror), "lfs", "fetch", "--all"],
                 timeout=7200,
@@ -104,7 +105,7 @@ def verify_mirror(
             f"Mirror verification failed for {repository.full_name}; "
             f"{len(missing)} refs missing or stale: {preview}{suffix}"
         )
-    if fetch_lfs:
+    if fetch_lfs and has_resolvable_head(mirror, cancel_event=cancel_event):
         run_command(
             ["git", "-C", str(mirror), "lfs", "fsck", "--objects"],
             timeout=1800,
