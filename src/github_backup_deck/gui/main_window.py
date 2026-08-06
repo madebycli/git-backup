@@ -177,25 +177,32 @@ def run_gui() -> int:
             self.add(root)
 
         def _header(self) -> Any:
-            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-            box.set_size_request(-1, 64)
-            self._margins(box, 14)
-            box.pack_start(
-                self._button("✕", "x-btn", lambda *_: self._close(), width=36),
-                False,
-                False,
-                0,
-            )
-            box.pack_start(
-                self._label("GitHub Backup Deck", "picker-title", width_chars=36),
-                True,
-                True,
-                0,
-            )
-            self.head = self._label("READY", "status-chip", 0.5, width_chars=20)
-            self.head.set_size_request(190, 36)
-            box.pack_end(self.head, False, False, 0)
-            return box
+            header = Gtk.Grid()
+            header.set_column_spacing(10)
+            header.set_hexpand(True)
+            header.set_size_request(-1, 32)
+            header.set_margin_top(6)
+            header.set_margin_bottom(6)
+            header.set_margin_start(12)
+            header.set_margin_end(12)
+
+            close = self._button("✕", "x-btn", lambda *_: self._close(), width=32)
+            close.set_size_request(32, 32)
+            header.attach(close, 0, 0, 1, 1)
+
+            title = self._label("GitHub Backup Deck", "picker-title")
+            title.set_halign(Gtk.Align.START)
+            header.attach(title, 1, 0, 1, 1)
+
+            spacer = Gtk.Box()
+            spacer.set_hexpand(True)
+            header.attach(spacer, 2, 0, 1, 1)
+
+            self.head = self._label("READY", "status-chip", 0.5)
+            self.head.set_size_request(96, 30)
+            self.head.set_halign(Gtk.Align.END)
+            header.attach(self.head, 3, 0, 1, 1)
+            return header
 
         def _account_card(self) -> Any:
             card = self._card("GITHUB ACCOUNT")

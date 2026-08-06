@@ -119,7 +119,7 @@ let
 in
 stdenvNoCC.mkDerivation {
   pname = "github-backup-deck";
-  version = "0.3.0";
+  version = "0.3.1";
   src = lib.cleanSource ../.;
   strictDeps = true;
   dontBuild = true;
