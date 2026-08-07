@@ -53,6 +53,7 @@
             python-tests = pkgs.runCommand "github-backup-deck-python-tests" {
               nativeBuildInputs = [
                 python
+                pkgs.git
                 pkgs.ruff
               ];
             } ''
