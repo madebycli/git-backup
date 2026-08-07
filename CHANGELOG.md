@@ -2,6 +2,22 @@
 
 All notable application changes are documented here.
 
+## 0.3.7 — 2026-08-07
+
+### Changed
+
+- Reworked the middle options panel into two independent groups on one shared level.
+- `BACKUP CONTENT` and its repository-content controls stay left-aligned.
+- `OUTPUT` and ZIP/folder/versioned-run controls stay right-aligned at the opposite edge.
+- Reduced the options panel height from the previous two-row layout and reduced the reserved progress area height.
+- The reclaimed vertical space is given to the expandable live-log area while the overall GIF-Picker window size remains unchanged.
+- Added layout regression checks for the left/right alignment and compact reserved heights.
+
+### Release scope
+
+- Application UI, layout tests, version metadata and changelog only.
+- No Nix, NixOS, flake, lock-file, catalog, authentication or backup-engine changes are included.
+
 ## 0.3.6 — 2026-08-07
 
 ### Fixed
