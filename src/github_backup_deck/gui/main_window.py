@@ -250,26 +250,40 @@ def run_gui() -> int:
             return card
 
         def _options(self) -> Any:
-            card = self._card(
+            card = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=24)
+            card.set_size_request(-1, 96)
+            card.set_hexpand(True)
+            card.get_style_context().add_class("deck-card")
+
+            content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+            content.set_halign(Gtk.Align.START)
+            content_title = self._label(
                 "BACKUP CONTENT · ALL ACCESSIBLE REPOSITORIES · EVERY GIT REF",
-                height=174,
+                "section-label",
             )
-            first = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+            content_title.set_halign(Gtk.Align.START)
+            content.pack_start(content_title, False, False, 0)
+
+            content_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+            content_row.set_halign(Gtk.Align.START)
             self.issues = self._toggle("Issues", self.config.include_issues)
             self.pulls = self._toggle("Pull requests", self.config.include_pull_requests)
             self.releases = self._toggle("Releases", self.config.include_releases)
             self.archived = self._toggle("Archived repos", self.config.include_archived)
             self.lfs = self._toggle("Git LFS", self.config.fetch_lfs)
             for widget in (self.issues, self.pulls, self.releases, self.archived, self.lfs):
-                first.pack_start(widget, False, False, 0)
-            card.pack_start(first, False, False, 0)
-            second = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-            second.pack_start(
-                self._label("Output", "card-detail", width_chars=12),
-                False,
-                False,
-                0,
-            )
+                content_row.pack_start(widget, False, False, 0)
+            content.pack_start(content_row, False, False, 0)
+            card.pack_start(content, False, False, 0)
+
+            output = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+            output.set_halign(Gtk.Align.END)
+            output_title = self._label("OUTPUT", "section-label", 1.0)
+            output_title.set_halign(Gtk.Align.END)
+            output.pack_start(output_title, False, False, 0)
+
+            output_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+            output_row.set_halign(Gtk.Align.END)
             self.zip = Gtk.RadioButton.new_with_label_from_widget(None, "ZIP per repository")
             self.folder = Gtk.RadioButton.new_with_label_from_widget(
                 self.zip, "Folder per repository"
@@ -278,7 +292,7 @@ def run_gui() -> int:
                 widget.set_mode(False)
                 widget.set_size_request(170, 34)
                 widget.get_style_context().add_class("chip")
-                second.pack_start(widget, False, False, 0)
+                output_row.pack_start(widget, False, False, 0)
             self.zip.set_active(self.config.backup_format == "zip")
             self.folder.set_active(self.config.backup_format == "folder")
             self.versioned = self._toggle(
@@ -286,13 +300,14 @@ def run_gui() -> int:
                 self.config.versioned_snapshots,
                 width=190,
             )
-            second.pack_start(self.versioned, False, False, 0)
-            card.pack_start(second, False, False, 0)
+            output_row.pack_start(self.versioned, False, False, 0)
+            output.pack_start(output_row, False, False, 0)
+            card.pack_end(output, False, False, 0)
             return card
 
         def _progress(self) -> Any:
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-            box.set_size_request(-1, 84)
+            box.set_size_request(-1, 68)
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
             self.status = self._label("Ready", "card-detail", width_chars=40)
             self.backup = self._button("Start backup", "primary-btn", self._backup, width=164)
