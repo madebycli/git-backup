@@ -10,6 +10,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from github_backup_deck import __version__
 from github_backup_deck.app import BackupApplication
 from github_backup_deck.config import state_dir
 from github_backup_deck.events import ProgressEvent
@@ -281,11 +282,18 @@ class DaemonHandler:
     def __call__(self, request: dict[str, Any]) -> dict[str, Any]:
         command = request.get("command")
         if command == "ping":
-            return {"ok": True, "status": "ready", "protocol": 3}
+            return {
+                "ok": True,
+                "status": "ready",
+                "protocol": 3,
+                "version": __version__,
+                "pid": os.getpid(),
+            }
         if command == "status":
             after = int(request.get("after_sequence", 0))
             response = self.jobs.status(after)
             response["latest_summary"] = self.state.latest_summary()
+            response["daemon_version"] = __version__
             return response
         if command == "start_backup":
             raw_destination = request.get("destination")

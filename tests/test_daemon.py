@@ -4,7 +4,8 @@ import threading
 import time
 from pathlib import Path
 
-from github_backup_deck.daemon import JobManager
+from github_backup_deck import __version__
+from github_backup_deck.daemon import DaemonHandler, JobManager
 from github_backup_deck.events import EventSink, ProgressEvent
 from github_backup_deck.models import BackupSummary, RepositoryResult, utc_now
 from github_backup_deck.process import CommandCancelled
@@ -79,3 +80,17 @@ def test_job_can_be_cancelled(tmp_path: Path) -> None:
     ):
         time.sleep(0.01)
     assert manager.status()["job"]["state"] == "cancelled"
+
+
+def test_daemon_ping_reports_runtime_version_and_pid(tmp_path: Path) -> None:
+    manager = JobManager(
+        application_factory=FastApplication,  # type: ignore[arg-type]
+        notifier=lambda *_args, **_kwargs: None,
+        status_path=tmp_path / "status.json",
+    )
+    response = DaemonHandler(manager)({"command": "ping"})
+    assert response["ok"] is True
+    assert response["protocol"] == 3
+    assert response["version"] == __version__
+    assert isinstance(response["pid"], int)
+    assert response["pid"] > 1
