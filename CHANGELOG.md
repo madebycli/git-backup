@@ -2,6 +2,26 @@
 
 All notable application changes are documented here.
 
+## 0.3.9 — 2026-08-24
+
+### Fixed
+
+- Added an explicit IPC version handshake between the GUI/client and the persistent background backup daemon.
+- An idle daemon from an older installed application version is now retired automatically and restarted from the current installation before a new backup begins.
+- A previous-version daemon is never terminated while a backup is actively running or cancelling; it may finish safely, and the next action replaces it.
+- Daemon `ping` and status responses now expose the actual runtime version, preventing a newly upgraded GUI from silently reusing stale in-memory backend code.
+- Added regression coverage for exact daemon-version matching, active-job preservation and automatic replacement after a completed job.
+
+### Why this matters
+
+- In 0.3.8 the private-repository credential fix was correct on disk, but an already-running 0.3.7 daemon could continue serving the upgraded GUI. That old process still used the stale absolute Nix-store `gh` credential helper until `gh auth setup-git` repaired the global configuration.
+- From 0.3.9 onward, updating the app no longer requires manually restarting the background daemon for new jobs to use the new backend code.
+
+### Release scope
+
+- Application IPC/daemon runtime code, tests, version metadata and changelog only.
+- No Nix, NixOS, flake, lock-file or catalog changes are included.
+
 ## 0.3.8 — 2026-08-24
 
 ### Fixed
