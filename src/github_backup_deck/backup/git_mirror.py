@@ -3,7 +3,6 @@ from __future__ import annotations
 import threading
 from pathlib import Path
 
-from github_backup_deck.backup.git_auth import github_git_command
 from github_backup_deck.backup.git_state import has_refs
 from github_backup_deck.models import Repository
 from github_backup_deck.process import run_command
@@ -28,7 +27,7 @@ class GitMirror:
             )
         else:
             run_command(
-                github_git_command("clone", "--mirror", repository.clone_url, str(mirror)),
+                ["git", "clone", "--mirror", repository.clone_url, str(mirror)],
                 timeout=3600,
                 cancel_event=cancel_event,
             )
@@ -46,13 +45,13 @@ class GitMirror:
             cancel_event=cancel_event,
         )
         run_command(
-            github_git_command("-C", str(mirror), "remote", "update", "--prune"),
+            ["git", "-C", str(mirror), "remote", "update", "--prune"],
             timeout=3600,
             cancel_event=cancel_event,
         )
         if fetch_lfs and has_refs(mirror, cancel_event=cancel_event):
             run_command(
-                github_git_command("-C", str(mirror), "lfs", "fetch", "--all"),
+                ["git", "-C", str(mirror), "lfs", "fetch", "--all"],
                 timeout=7200,
                 cancel_event=cancel_event,
             )
