@@ -75,6 +75,10 @@ def test_completed_previous_daemon_is_retired_before_new_server(
         "github_backup_deck.ipc.client.shutil.which",
         lambda _name: "/usr/bin/github-backup-deck-daemon",
     )
+    monkeypatch.setattr(
+        "github_backup_deck.ipc.client.state_dir",
+        lambda: tmp_path / "state",
+    )
 
     class FakeProcess:
         pass
