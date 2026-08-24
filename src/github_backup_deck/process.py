@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping, Sequence
 
+from github_backup_deck.backup.git_auth import github_git_environment
+
 
 @dataclass(frozen=True, slots=True)
 class CommandResult:
@@ -61,6 +63,8 @@ def run_command(
     merged_env.setdefault("GIT_TERMINAL_PROMPT", "0")
     if env:
         merged_env.update(env)
+    if args[0] == "git":
+        merged_env = github_git_environment(merged_env)
     process = subprocess.Popen(
         list(args),
         cwd=cwd,
