@@ -2,6 +2,20 @@
 
 All notable application changes are documented here.
 
+## 0.3.8 — 2026-08-24
+
+### Fixed
+
+- Private repository backups no longer depend on a persisted absolute `gh` credential-helper path from an older Nix store generation.
+- Every Git subprocess now resets inherited GitHub credential helpers and uses `gh auth git-credential` resolved from the current runtime `PATH`.
+- Clone, fetch, remote-ref verification and Git LFS network access therefore share the same upgrade-safe authentication path.
+- Added regression coverage for stale `/nix/store/.../.gh-wrapped` credential-helper configurations.
+
+### Release scope
+
+- Application authentication/runtime code, tests, version metadata and changelog only.
+- No Nix, NixOS, flake, lock-file or catalog changes are included.
+
 ## 0.3.7 — 2026-08-07
 
 ### Changed
